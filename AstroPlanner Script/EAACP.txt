@@ -1,0 +1,807 @@
+﻿// AstroPlanner Get/Set Objects
+//
+// This is a stripped down version of EAAControl2. It supports fetching selected object(s) in AP and adding object(s) to AP.
+// Additionally, this allows the execution of the Quick Observation script.
+// Version 0.1 - 5th March 2024
+// Version 0.2 - 18th March 2024
+
+class StellariumObject
+	public const stOK = 1
+	public const stCommErr = -1 	// Cannot communicate with Stellarium
+	public const stNoSelErr = -2		// No object is selected in Stellarium
+	
+	dim StDict as Dictionary	// Stellarium object
+	dim aTypes() as string // Stellarium types to AP types
+	
+	public dim URL as string = "http://localhost:8090/api/objects/info?format=map"
+	
+	// Stellarium type = AP Type. More specialised of the type first i.e. "globular star cluster" before "cluster"
+	sub CreateTypes()
+		dim sTypes as string
+		sTypes = "galaxy,Galaxy"
+		sTypes = sTypes  +",globular star cluster,Globular"
+		sTypes = sTypes + ",open star cluster,Open"
+		sTypes = sTypes + ",star cluster,Open"
+		sTypes = sTypes + ",cluster,Open"
+		
+		sTypes = sTypes + ",HII region,Neb"
+		sTypes = sTypes + ",planetary nebula,P Neb"
+		sTypes = sTypes + ",reflection nebula,R Neb"
+		sTypes = sTypes + ",dark nebula,DkNeb"
+		sTypes = sTypes + ",nebula,Neb"
+		
+		sTypes = sTypes + ",double star,Dbl"
+		sTypes = sTypes + ",star,Star"
+		sTypes = sTypes + ",supernova remnant,SNR"
+		sTypes = sTypes + ",asteroid,Minor"
+		sTypes = sTypes + ",comet,Comet"
+		sTypes = sTypes + ",planet,Planet"
+		sTypes = sTypes + ",moon,Planetary Moon"
+		sTypes = sTypes + ",artificial satellite,Artificial Satellite"
+		
+		aTypes = Split(sTypes,",")
+	end sub
+	
+	sub Constructor()
+		CreateTypes()
+	end sub
+	
+	public function Fetch() as integer
+		
+		dim sStelObject as string =  Web.HTTPGet(URL).DefineEncoding(TextEncoding.EncodingByName("UTF-8"))
+		
+		if sStelObject <> "" then
+			sStelObject = ReplaceAll(sStelObject,"\""","")
+			sStelObject = Mid(sStelObject,2, Len(sStelObject)-2)
+			
+			dim sParams() as string = SplitQuoted(sStelObject,",",false)
+			
+			dim sParam as string
+			StDict = new Dictionary
+			
+			for each sParam in sParams
+				dim sKeyValue() as string = SplitQuoted(sParam,":",true)
+				if sKeyValue.UBound = 1 then
+					StDict.Value(sKeyValue(0)) =  sKeyValue(1)
+				end if
+			next
+			
+			// If we haven't got a location then is any object selected
+			if Value("decJ2000") = "" then
+				return stNoSelErr
+			end if
+		else
+			return stCommErr
+		end if
+		return stOK
+		
+	end function
+	
+	public function Value(ParamName as string) as Variant
+		if StDict.Count()>0 then
+			if StDict.HasKey(ParamName) then
+				return StDict.Value(ParamName)
+			end if
+		end if
+		
+		return ""
+	end function
+	
+	// Converts Stellarium decimal RA to AP's decimal hour RA
+	public function StRAtoAPRA(RA as double) as double
+		if RA>=0 then
+			return  RA/15.0
+		else
+			return (RA+360.0)/15.0
+		end if
+	end function
+	
+	// Converts Stellarium's surface brightness (mag/arcmin) to mag/arcsec
+	public function SBMinToSec(SBinArcMin as Variant) as Variant
+		if IsNumeric(SBinArcMin) then
+			return SBinArcMin + 8.89
+		end if
+		return ""
+	end function
+	
+	// Convert Stellarium size in degrees to arc-minutes for AP.
+	public function DegToArcmins(dd_size as Variant) as string
+		dim dblSize as double
+		if IsNumeric(dd_size) then
+			dblSize = CDbl(dd_size)
+			if dblSize > 0 then
+				return DoubleToStr(dblSize*60.0,3)
+			end if
+		end if
+		return ""
+	end function
+	
+	// Creates AP size information (in arcmins) using either major/minor fields (Stellarium 24.0.27-81f3739 [HEAD]) or size field
+	public function APSize() as string
+		dim dblMajorAxis, dblMinorAxis, dblSize as double = -1
+		if IsNumeric(Value("axis-major-dd")) and IsNumeric(Value("axis-minor-dd"))  then
+			dblMajorAxis = CDbl(Value("axis-major-dd"))
+			dblMinorAxis = CDbl(Value("axis-minor-dd"))
+			if dblMajorAxis > 0 and dblMinorAxis > 0 then
+				return DegToArcMins(dblMajorAxis) + "x" + DegToArcMins(dblMinorAxis)
+			end if
+		end if
+		return DegToArcMins(dblSize)
+	end function
+	
+	public function StelTypeToAPType() as string
+		dim sStelType as string = Value("object-type")
+		if sStelType <> "" then
+			dim i as integer
+			for i=0 to aTypes.UBound step 2
+				if InStr(sStelType, aTypes(i)) > 0 then
+					return aTypes(i+1)
+				end if
+			next i
+		end if
+		return sStelType
+	end function
+	
+end class
+
+class StellariumObjectWorker
+	
+	function GetDesignation(Designation as string, Ignore as string, FirstOnly as boolean = false) as string
+		dim sID, sOut as string
+		dim bFirst as boolean = true
+		
+		Designation = ReplaceAll(Designation," ","")
+		if Designation <> "" then
+			dim sIDs() as string = Split(Designation,"-")
+			
+			if FirstOnly then
+				return sIDs(0)
+			end if
+			
+			for each sID in sIDs
+				if sID<>Ignore then
+					if not bFirst then
+						sOut = sOut + ", "
+					end if
+					sOut = sOut + sID
+					bFirst = false
+				end if
+			next
+		end if
+		
+		return sOut
+	end function
+	
+	public sub AddSelectedObjectToPlan()
+		
+		dim oStel as new StellariumObject
+		
+		dim iStatus as integer = oStel.Fetch()
+		if iStatus = StellariumObject.stOK then
+			
+			dim soName as string =  oStel.Value("name")
+			dim soDesignation as string = oStel.Value("designations")
+			dim soLocalizedName as string =  oStel.Value("localized-name")
+			
+			dim oObj as APPlanObject = Plan().NewObject()
+			
+			// Decide which name(s) we are going to use for AP ID
+			dim bUsedLocalised as boolean = false
+			if soLocalizedName <> "" then
+				oObj.ID = soLocalizedName
+				bUsedLocalised = true
+			elseif soName<>"" then
+				oObj.ID = soName
+			elseif soDesignation <> "" then
+				oObj.ID = GetDesignation(soDesignation,"",true)
+			else
+				oObj.ID = "Stellarium"
+			end if
+			
+			// Add other names to AP Name field
+			if soDesignation <> "" then
+				oObj.Name = GetDesignation(soDesignation, oObj.ID)
+			end if
+			
+			if bUsedLocalised and soName<>"" then
+				if oObj.Name <> "" then
+					oObj.Name = oObj.Name + ", " + soName
+				else
+					oObj.Name = soName
+				end if
+			end if
+			
+			// Add the main parameters. These should always be present (?)
+			oObj.Dec = oStel.Value("decJ2000")
+			oObj.RA =  oStel.StRAtoAPRA(oStel.Value("raJ2000"))
+			oObj.Type = oStel.StelTypeToAPType()
+			
+			// Decide which magnitude (if any) is available
+			dim vmag, bmag as double
+			dim magfound as boolean = false
+			
+			if IsNumeric(oStel.Value("vmag")) then
+				vmag = oStel.Value("vmag")
+				if vmag < 99 then
+					oObj.Magnitude = vmag
+					magfound = true
+				end if
+			end if
+			
+			if not magfound then
+				if IsNumeric(oStel.Value("vmag")) then
+					bmag = oStel.Value("bmag")
+					if bmag < 99 then
+						oObj.Magnitude = bmag
+					end if
+				end if
+			end if
+			
+			// Object size (if any). AP needs magnitude and size to calculate surface brightness.
+			oObj.Size = oStel.APSize()
+			
+			if IsNumeric(oStel.Value("orientation-angle")) then
+				oObj.PosAngle = oStel.Value("orientation-angle")
+			end if
+			
+		else
+			select case iStatus
+			case StellariumObject.stCommErr
+				Print "Cannot communicate with Stellarium."
+			case StellariumObject.stNoSelErr
+				Print "Stellarium - No object selected"
+			end select
+		end if
+		
+	end sub
+end class
+
+// GetObjects Option 1=First selected, 2=All selected, 3=Object of type=ObjType,4=All objects in plan.
+// {"Cmd":2,"Option":1,"ObjType":"extMinor"}
+sub GetObjects(iOption as integer, sType as string, ByRef Result as JSON)
+	dim Objects() as APPlanObject
+	Debug "GetObjects:  Option=", iOption, " Type=", sType
+	// Fetch the required objects into an array
+	select case iOption
+	case 1	// First selected
+		if Plan.SelectedObject <> nil then
+			Objects.Append Plan.SelectedObject()
+		end if
+		break
+	case 2	// All selected
+		Objects = Plan.SelectedObjects()
+		break
+	case 3	// Objects of specified type
+		dim tmpObj as APPlanObject
+		for each tmpObj in Plan.Objects()
+			if tmpObj.Type = sType then
+				Objects.Append tmpObj
+			end if
+		next
+		break
+	case  4 // All objects
+		Objects = Plan.Objects()
+		break
+	end select
+	
+	Debug "GetObjects: Count=", Objects.UBound+1
+	
+	// Create a JSON doc of objects
+	if Objects.UBound >= 0 then
+		dim Ob as APPlanObject
+		dim doc as string = "{""Objects"":["
+		dim bFirst as boolean = true
+		
+		for each Ob in Objects
+			// Add object to JSON
+			if not bFirst then
+				doc = doc + ","
+			else
+				bFirst = false
+			end if
+			
+			doc = doc +CreateJSONObject(Ob.ID, Ob.Name, Ob.Type, Ob.Size, Ob.Constellation, Ob.Catalog, Ob.GetValueAsString("Distance"), Ob.PosAngle, Ob.Magnitude, Ob.RA, Ob.Dec, Ob.AssociatedObjects().UBound+1)
+		next
+		doc = doc + "]}"
+		Debug "Objects: ",doc
+		Result.Load(doc)
+	end if
+end sub
+
+function CreateJSONObject(ID as string, Name as string, Type as string, Size as string, Constellation as string, Catalog as string, Distance as string, PosAngle as double, Magnitude as double, RA as double, Dec as double, AssociatedCount as integer) as string
+	dim sJSON  as string =""
+	sJSON = sJSON + "{""ID"":""" + ReplaceAll(ID,"""","\""") + ""","  + """Name"":""" + ReplaceAll(Name,"""","\""") + ""","  + """Type"":""" + Type + ""","
+	sJSON = sJSON + """Size"":""" + Size + ""","  + """Constellation"":""" + Constellation + ""","  + """Catalogue"":""" + Catalog + ""","
+	sJSON = sJSON + """Distance"":""" + Distance + ""","
+	sJSON = sJSON + """PosAngle"":" + DoubleToStr(PosAngle) + ","  + """Magnitude"":" + DoubleToStr(Magnitude) + ","
+	sJSON = sJSON + """RA2000"":" + DoubleToStr(RA) + ","  + """Dec2000"":" + DoubleToStr(Dec) + ","  + """Associated"":" + Str(AssociatedCount) + "}"
+	return sJSON
+end function
+
+function FindPlanObject(ID as string) as APPlanObject
+	dim obj as APPlanObject
+	for each obj in Plan.Objects()
+		if obj.ID = ID then
+			return obj
+		end if
+	next
+	return nil
+end function
+
+// PutObjects Option 1=Add objects, 2=Update objects
+// {"Cmd":1,"Option":1,"Objects":[{"Name":"M45","RA":16.4567},{"Name":"NGC456","RA":14.4567}]}
+sub PutObjects(iOption as integer, ByRef oCmd as JSON)
+	dim a,b as JSON = new JSON()
+	dim obj as APPlanObject
+	
+	a = oCmd.Child("Objects")
+	
+	dim i as integer
+	for i=0 to a.Count-1
+		b =a.Child(i)
+		Debug b.Child("ID"), b.Child("Name"), b.Child("Type"), b.Child("Size"), b.Child("RA2000"), b.Child("Dec2000")
+		if iOption = 1 then
+			// Add object to plan
+			obj = Plan.NewObject()
+			obj.ID = b.Child("ID")
+			obj.Name = b.Child("Name")
+			obj.Type = b.child("Type")
+			obj.Size = b.Child("Size")
+			obj.PosAngle = b.Child("PosAngle")
+		elseif iOption = 2 then
+			// Find object in plan to update
+			obj = FindPlanObject(b.Child("ID"))
+		end if
+		if  not (obj is nil) then
+			// Common add and update parameters
+			obj.RA = b.child("RA2000")
+			obj.Dec = b.child("Dec2000")
+			obj.Magnitude = b.child("Magnitude")
+		end if
+	next i
+end sub
+
+sub SetSession()
+	dim dtNow as Date = Plan().LocalDateTime
+	
+	Debug "Sess Cnt:", APSession.Count
+	
+	if APSession.Count >0 then
+		dim oSession as APSession = APSession.Session(APSession.Count)
+		dim dtSessEnd as Date = oSession.Finish
+		if dtSessEnd+3600 > dtNow then
+			// There was a session in the last hour. Use that session
+			dtNow = dtNow + 3600
+			oSession.Finish = dtNow.TotalSeconds
+		else
+			// There was NO session within the last hour. Create a new one.
+			dim oNewSession as APSession = APSession.NewSession(Plan().LocalDateTime)
+			oNewSession.Finish = dtNow + 3600
+			
+			// Specify the location
+			if APResource.Default(APResource.rsrc_Site) <> nil then
+				oNewSession.Site = APResource.Default(APResource.rsrc_Site).Name
+			end if
+			
+			//Specify the observer
+			if  APResource.Default(APResource.rsrc_Observer) <> nil then
+				ONewSession.Observer = APResource.Default(APResource.rsrc_Observer).Name
+			end if
+		end if
+	end if
+end sub
+
+sub PopulateObjectFields(ByRef Obs as APObservation, ByRef Obj as APPlanObject)
+	
+	// Create a dictionary of object fields
+	dim dicOF as new Dictionary
+	
+	dicOF.Value("Alt") = AngleFormatted(obj.Altitude,2)
+	dicOF.Value("Az") = AngleFormatted(obj.Azimuth,2)
+	dicOF.Value("RA") = FormatRA(obj.RA,2)
+	dicOF.Value("Dec") = FormatDec(obj.Dec,2)
+	
+	dicOF.Value("Air Mass") = DoubleToStr(obj.AirMass,2)
+	dicOF.Value("Extinct") = DoubleToStr(obj.Extinction,2)
+	dicOF.Value("Con") = obj.Constellation
+	dicOF.Value("Sun") = AngleFormatted(obj.SunDistance,2)
+	dicOF.Value("Moon") = AngleFormatted(obj.MoonDistance,2)
+	dicOF.Value("Vis") = obj.Visible
+	dicOF.Value("Par") = AngleFormatted(obj.ParallacticAngle,2)
+	
+	dicOF.Value("App Mag") = DoubleToStr(obj.ApparentMagnitude,2)
+	dicOF.Value("SB") = DoubleToStr(obj.SurfaceBrightness,2)
+	
+	// Assign the object fields to the observation
+	Obs.ObjectFields = dicOF
+	
+end sub
+
+sub LogObservation(ByRef obj as APPlanObject, Notes as string)
+	
+	dim oObs as APObservation = obj.NewObservation(Plan.LocalDateTime, 0)
+	oObs.Notes = Notes
+	
+	// Add the object fields to the observation
+	PopulateObjectFields(oObs, obj)
+	
+	// Specify default telescope
+	if TelescopeResource.Default <> nil then oObs.Telescope = TelescopeResource.Default.Name
+	
+	// Specify default imager
+	if ImagerResource.Default<>nil then oObs.Imager = ImagerResource.Default.Name
+	
+	// Associate observation with current plan
+	oObs.Plan = Plan().FilePath
+	
+	// Save the observation
+	oObs.Save()
+end sub
+
+function CreateCaption(Multiple as boolean, ID as string, Count as integer) as string
+	dim caption as string
+	
+	if Len(ID) > 30 then ID = Left(ID,30) + "..."
+	if Multiple then
+		caption = ID + " + " + Str(Count) + " more objects"
+	else
+		caption = ID
+	end if
+	
+	// Pad the caption to create the width of the dialog
+	if len(caption) < 70 then
+		dim i as integer
+		for i=len(caption) to 70
+			caption = caption + " "
+		next
+		caption = caption + "."
+	end if
+	
+	return caption
+end function
+
+sub QuickObservation(LogAssociated as integer, Notes as string)
+	dim MultipleObjects as boolean = false
+	
+	if Plan.nSelectedObjects = 0 then
+		Speak("No object selected")
+		return
+	end if
+	
+	// Fetch the object(s) that will be logged
+	dim Objects() as APPlanObject
+	dim obj as APPlanObject
+	
+	if Plan.nSelectedObjects > 1 then
+		// Log multiple selected objects.
+		Objects = Plan.SelectedObjects()
+		MultipleObjects = true
+	else
+		// Only single selected objects can have their associated objects logged as well.
+		obj = Plan.SelectedObject
+		if obj.IsInAssociation then
+			// Log the selected object
+			Objects = obj.AssociatedObjects(true)
+		end if
+	end if
+	
+	dim ObjectCount as integer = UBound(Objects)
+	
+	dim bAssociated as boolean = false
+	if not MultipleObjects and ObjectCount > 0 then
+		if LogAssociated = 1 then
+			bAssociated = true
+		end if
+	end if
+	
+	// Setup a new observing session if required.
+	SetSession()
+	
+	if (bAssociated or MultipleObjects) and ObjectCount > 0 then
+		// Add an observation to the main object and any associated objects or add an observation to each selected object.
+		Debug "Objects=", ObjectCount
+		dim i as integer
+		for i=0 to ObjectCount
+			dim objtmp as APPlanObject = Objects(i)
+			LogObservation(objtmp, Notes)
+		next i
+		Speak("Observations for " + Str(ObjectCount+1) + " objects logged.")
+	else
+		// Add an observation to the selected object only (no associated objects)
+		LogObservation(obj, Notes)
+		Speak("Observation logged")
+	end if
+end sub
+
+sub EncodeURI(ByRef url as string)
+	url = ReplaceAll(url,"'","%27")
+	url = ReplaceAll(url," ","%20")
+end sub
+
+function FormatNumber(sInput as String, iDecpts as integer) as string
+	dim dblInput as double = 0
+	dblInput= CDbl(sInput)
+	return DoubleToStr(dblInput, iDecpts)
+end function
+
+function CometHorizonsCommand(sName as string) as string
+	dim sCometName as string = ""
+	Dim iBracketEnd, iSlashPos as integer = 0
+	
+	Debug "CometHorizonsCommand(), Name=", sName
+	
+	if sName = "" then
+		return ""
+	end if
+	
+	dim iFirstCharacter as integer = Asc(Left(sName,1))
+	
+	select case iFirstCharacter
+	case 40
+		// JPL Comet starting with a '('
+		Debug "CometHorizonsCommand(), JPL Starting with a ("
+		iBracketEnd = Instr(1, sName, ")")
+		iSlashPos = Instr(iBracketEnd, sName, "/")
+		sCometName = Trim(Mid(sName,2,iBracketEnd-2)) + Trim(Mid(sName, iBracketEnd+1, iSlashPos-iBracketEnd-1))
+	case 48,49,50,51,52,53,54,55,56,57
+		// MPC Comet starting with a number
+		Debug "CometHorizonsCommand(), MPC Starting with a number"
+		sCometName = Trim(Mid(sName,1,Instr(sName,"/")-1))
+	else
+		// MPC/JPL Comet starting with a letter
+		Debug "CometHorizonsCommand(), MPC/JPL Starting with letter"
+		sCometName = Trim(Mid(sName,1,Instr(sName,"(")-1))
+	end select
+	debug "Comet Name=", sCometName
+	
+	// The CAP directive returns last apparition before current date. Stops a list of apparitions being returned.
+	return "DES=" + sCometName + "%3BCAP%3B"
+end function
+
+function AsteroidHorizonsCommand(sName as string, sCatalogue as string) as string
+	dim sAsteroidName as string = ""
+	dim iBracketEnd, iSlashPos as integer = 0
+	
+	Debug "AsteroidHorizonsCommand(), In Name=", sName, " Cat=", sCatalogue
+	
+	if sName = "" then
+		return ""
+	end if
+	
+	dim iFirstCharacter as integer = Asc(Left(sName,1))
+	
+	select case sCatalogue
+	case "MPCORB","JPLUnnumbered","MPCDistant","MPCNEA","MPCPHA","MPCUnusual"
+		if iFirstCharacter = 40 then
+			// MPC Numbered Asteroid Name
+			Debug "AsteroidHorizonsCommand(), MPC Starting with a (. E.g. (1) Ceres"
+			iBracketEnd = Instr(1, sName, ")")
+			iSlashPos = Instr(iBracketEnd, sName, "/")
+			sAsteroidName = Trim(Mid(sName,2,iBracketEnd-2)) + "%3B"
+		else
+			Debug "AsteroidHorizonsCommand(), MPC/JPL unnumbered e.g. 1979 MW5"
+			sAsteroidName = sName
+		end if
+	case "JPLNumbered"
+		Debug "AsteroidHorizonsCommand(), JPL Starting with a number e.g. 550875 2012 TE312 or 1 Ceres"
+		sAsteroidName = Left(sName,Instr(sName," ")-1) +"%3B"
+	end select
+	
+	Debug "AsteroidHorizonsCommand(), Out Name=", sAsteroidName
+	
+	return sAsteroidName
+	
+end function
+
+function  ProcessHorizonsData(sName as String, sType as String, ByRef sData as String) as string
+	dim sEphemeris, sRADEC, sMag, sIlum, sDistanceAU, sRelVelocity, sLightTime, sConstellation, sSharpCap as string = ""
+	dim iStart, iEnd as Integer
+	
+	// Find the ephemeris section in the returned data
+	iStart= Instr(sData,"$$SOE")
+	iEnd = Instr(sData,"$$EOE")
+	
+	// Check that we found the emphemeris data - if not return blank.
+	if iStart = 0 or iEnd = 0 then
+		return ""
+	end if
+	
+	// Jump 36 characters to the start of the coordinates field
+	sEphemeris = Mid(sData, iStart+36,iEnd-iStart-36)
+	
+	debug "JPL Ephemeris=", sEphemeris
+	
+	// The Horizons data looks like fixed field lengths. There is variable padding spaces between the fields most probably to accomodate different units/precision.
+	// The quick solution was to create a string array split on the spaces and then remove the empty fields.
+	// In the Horizons app manual it says you can output fields delimited by commas. There is no mention how to do this in the API docs. Query JPL?
+	dim sDA() as string = Split(sEphemeris," ")
+	
+	// Remove all the empty array members to leave the data fields
+	dim iCount as integer =0
+	While iCount<>UBound(sDA)
+		if LTrim(sDA(iCount))="" then
+			sDA.Remove iCount
+		else
+			iCount = iCount + 1
+		end if
+	Wend
+	
+	// Format the data fields into the required variables
+	sRADEC = sDA(0) +" " + sDA(1) + " " + sDA(2) + " " + sDA(3) + " " + sDA(4) + " " + sDA(5)
+	sMag = FormatNumber(sDA(6),2)
+	sIlum = FormatNumber(sDA(8),2)
+	sDistanceAU = FormatNumber(sDA(9),2)
+	sRelVelocity = FormatNumber(sDA(10),2)
+	sLightTime = FormatNumber(sDA(11),2)
+	sConstellation = sDA(12)
+	
+	debug "JPL Data: RADDEC=",sRADEC," Mag=",sMag," Ilumination%=",sIlum," Distance(au)=",sDistanceAU," Rel Velocity (km/s)=",sRelVelocity," LightTime(min)=",sLightTime," Const=",sConstellation
+	
+	return SharpCapDSAFormat(sName, "LT=" + sLightTime + "min, Dist=" + sDistanceAU  + "au", sType + " (JPL Horizons)", sRADEC, "", sMag)
+	
+end function
+
+function QueryJPLHorizons(ID as string, Type as string, Catalogue as string) as string
+	
+	// JPL Horizon strings used to build the object query
+	// More information - https://ssd-api.jpl.nasa.gov/doc/horizons.html
+	dim sHorizonsRequest as String = "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&OBJ_DATA='NO'&MAKE_EPHEM='YES'&EPHEM_TYPE='OBSERVER'&QUANTITIES='1,9,10,20,21,29'"
+	dim sHorizonLocation as String = ""
+	dim sHorizonsTime as String = ""
+	dim sHorizonsObjectID as String=""
+	
+	// The returned Horizons data
+	dim sHorizonsData as String = ""
+	
+	debug "QueryJPLHorizons(), Type=", Type
+	
+	// Create the command depending on type Minor or Comet
+	if Type="Minor" then
+		//Take the asteroids IAU number. %3b = ; (encoded). Format for JPL & MPC numbered asteroids.
+		sHorizonsObjectID = "&COMMAND='" + AsteroidHorizonsCommand(ID,Catalogue) + "'"
+	else
+		// Formats for JPL or MPC comet designations
+		sHorizonsObjectID = "&COMMAND='" + CometHorizonsCommand(ID) + "'"
+	end if
+	
+	//Lat/Lng of observer. Altitiude of observer is in KMs so convert from AP's meters.
+	sHorizonLocation = "&CENTER='coord'&COORD_TYPE='GEODETIC'&SITE_COORD='" + Str(Plan.CurrentSite.Longitude) + "," + Str(Plan.CurrentSite.Latitude) + "," + Str(Plan.CurrentSite.Altitude/1000) + "'"
+	
+	// Get the plans current time in UTC. Will be replaced with Plan().GMTDateTime
+	//dim dtStartDate as Date = new Date(Plan().UTC) // Use this line for pre-2.4b13 versions
+	dim dtStartDate as Date = new Date(Plan().GMTDateTime)
+	
+	sHorizonsTime = "&TLIST='" + dtStartDate.SQLDateTime() + "'"
+	
+	dim sHorizonsQuery as String = sHorizonsRequest + sHorizonLocation + sHorizonsTime + sHorizonsObjectID
+	
+	debug "Query=",sHorizonsQuery
+	
+	EncodeURI(sHorizonsQuery)
+	
+	debug "Encoded Query=",sHorizonsQuery
+	
+	// Issue the call the JPL Horizons Web Service - 20 second timeout - Would really like to know the return code
+	sHorizonsData = Web.HTTPGet(sHorizonsQuery, 20)
+	debug "Web Last Error:", Web.LastError
+	if sHorizonsData = "" then
+		Speak("No data was returned")
+		return ""
+	end if
+	
+	// DEBUG - Will write the query and returned data to a file for debugging
+	//dim a as APTextFile = APTextFile.WriteFile("JPLHorizonsDebug","txt")
+	//a.WriteLine(sHorizonsQuery)
+	//a.WriteLine(sHorizonsData)
+	
+	return  ProcessHorizonsData(ID, Type, sHorizonsData)
+	
+end function
+
+function ProcessOtherObjects(Obj as APPlanObject) as string
+	return SharpCapDSAFormat(Obj.ID, Obj.Name, Obj.Type, FormatRA(obj.RA,True,"hmsa") + " " + FormatDec(obj.Dec,True,"dmsa"),"",str(obj.Magnitude))
+end function
+
+function SharpCapDSAFormat(obj as APPlanObject) as string
+	if obj<>nil then
+		return SharpCapDSAFormat(obj.ID, obj.Name, obj.Type, Str(obj.RA), Str(obj.Dec), Str(obj.Magnitude))
+	end if
+	
+	return ""
+end function
+
+function SharpCapDSAFormat(IDs as String, Name as String, Type as String, RA as String, Dec as String, VMag as String, optional RMax as String = "", optional RMin  as String = "", optional PosAngle as string = "") as string
+	
+	//Create the SharpCap Format - fields sep = |
+	// IDs|Names|Type|RA(decimal hours)|Dec(degrees)|VMag|RMax(arcmin)|RMin(arcmin)|PosAngle
+	// More information - https://forums.sharpcap.co.uk/viewtopic.php?p=27143#p27143
+	
+	return IDs + "|" + Name + "|" + Type + "|" + RA + "|" + Dec + "|" + VMag + "|" + RMax + "|" + RMin + "|" + PosAngle
+end function
+
+sub SharpCapDSA()
+	dim obj as APPlanObject = Plan().SelectedObject
+	dim sOut as string
+	
+	// Check we have an object selected in the plan
+	if obj=nil then
+		Speak("No object selected")
+		return
+	end if
+	
+	// Check we have a site selected for the plan
+	if Plan.CurrentSite=nil then
+		Speak("No site selected.")
+		return
+	end if
+	
+	select case obj.Type
+	case "Minor","Comet"
+		//Check we are connected to the internet as we need the JPL Horizons web service
+		if NetworkConnected()=False then
+			Speak("No network connection!")
+			return
+		end if
+		sOut = QueryJPLHorizons(obj.ID, obj.Type, obj.GetValueAsString("Catalogue"))
+		debug "JPL DSA=",sOut
+	else
+		// For all other objects use AstroPlanners data to create DSA format
+		// Tested succesfully on quasars
+		sOut = ProcessOtherObjects(obj)
+		debug "AP DSA=",sOut
+	end select
+	
+	if sOut<>"" then
+		Clipboard = sOut
+		Speak("DSA completed")
+	else
+		Speak("DSA Failed")
+	end if
+	
+end sub
+
+sub main()
+	
+	dim iCmd, iOption as integer = 0
+	dim result as new JSON()
+	
+	// Comment the line below, to turn on debugging messages.
+	DebugOff()
+	
+	// Get the incoming parameters
+	dim oCmd as JSON = WebServer.LaunchParameters
+	Debug "JSON in=",oCmd.ToString
+	iCmd = oCmd.Lookup("Cmd", 0)
+	iOption = oCmd.Lookup("Option",0)
+	
+	select case iCmd
+	case 0
+		// Keep Alive command
+		break
+	case 1
+		Debug "Cmd: GetObjects"
+		GetObjects(iOption,oCmd.Lookup("ObjType",""), result)
+		break
+	case 2
+		Debug "Cmd: PutObjects"
+		PutObjects(iOption, oCmd)
+		break
+	case 3
+		Debug("Cmd:QuickObservation")
+		QuickObservation(iOption,oCmd.Lookup("Notes",""))
+		break
+	case 5
+		SharpCapDSA()
+		break
+	case 6
+		Debug "Cmd:StellariumAddObjectToPlan"
+		dim oStel as new StellariumObjectWorker
+		oStel.AddSelectedObjectToPlan()
+		break
+	end select
+	Debug result.ToString
+	// Pass the results back to the calling user
+	WebServer.ReturnResults(result)
+	result.Clear()
+	
+end sub
