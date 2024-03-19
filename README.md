@@ -1,7 +1,6 @@
 # EAACP
 <p>A small application to integrate AstroPlanner and Stellarium. The application provides a simple user interface to execute multiple functions via the scripting interfaces of AstroPlanner and Stellarium.</p>
 <p>This is a work in progress!</p>
-![EAACP - Vertical layout](https://github.com/Xio1996/EAACP/assets/88169944/41124ac3-7784-4d8f-b23d-3d3fad6dd586)
 
 <b>Quick Observation</b>: Displays a dialog allowing an observation to be added to one or more selected objects in a plan or to all objects associated with an object in the plan.
 
