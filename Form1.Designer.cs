@@ -119,7 +119,7 @@
             this.MinimumSize = new System.Drawing.Size(168, 90);
             this.Name = "frmCP";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "EAA CP (0.2)";
+            this.Text = "EAA CP (0.3)";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmCP_FormClosing);
             this.flpMain.ResumeLayout(false);

@@ -20,6 +20,25 @@ namespace EAACP
             public string MinorAxis;
         }
 
+        private Dictionary<int, string> WebServerErrors = new Dictionary<int, string>()
+        {
+            {0,"No error"},{1,"Bad JSON payload"},{2,"Missing script name"},{3,"Script does not exist"},{4,"Authentication error"},
+            {5,"Command parameter missing"},{6,"Internal AP error"},{7,"Unknown command"},{8,"Error in script"},
+            {9,"Cannot open script file"},{10,"Script not of general type"},{11,"Script is empty"},{12,"Script name illegal"}
+        };
+
+        public string WebServerErrorString(int errorCode)
+        {
+            try
+            {
+                return WebServerErrors[errorCode];
+            }
+            catch (System.Collections.Generic.KeyNotFoundException)
+            {
+                return "Unknown error";
+            }
+        }
+
         private Dictionary<string, string> ConstellationMappings = new Dictionary<string, string>()
         {
             {"and", "Andromeda"}, {"ant", "Antlia"}, {"aps", "Apus"}, {"aqr", "Aquarius"},

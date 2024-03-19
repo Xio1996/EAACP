@@ -48,7 +48,7 @@
             // 
             // txtNote
             // 
-            this.txtNote.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtNote.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtNote.Location = new System.Drawing.Point(10, 29);
             this.txtNote.Multiline = true;
             this.txtNote.Name = "txtNote";
@@ -80,6 +80,7 @@
             // chkAssociated
             // 
             this.chkAssociated.AutoSize = true;
+            this.chkAssociated.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkAssociated.Location = new System.Drawing.Point(11, 150);
             this.chkAssociated.Name = "chkAssociated";
             this.chkAssociated.Size = new System.Drawing.Size(138, 17);

@@ -27,6 +27,8 @@ namespace EAACP
             txtAuthentication.Text = Properties.Settings.Default.Auth;
             txtAPIP.Text = Properties.Settings.Default.APIP;
             txtAPPort.Text = Properties.Settings.Default.APPort;
+            txtStelIP.Text = Properties.Settings.Default.StelIP;
+            txtStelPort.Text = Properties.Settings.Default.StelPort;
             btnCancel.Select();
         }
 
@@ -35,6 +37,10 @@ namespace EAACP
             Properties.Settings.Default.Auth = txtAuthentication.Text.Trim();
             Properties.Settings.Default.APIP = txtAPIP.Text.Trim();
             Properties.Settings.Default.APPort = txtAPPort.Text;
+
+            Properties.Settings.Default.StelIP = txtStelIP.Text.Trim();
+            Properties.Settings.Default.StelPort = txtStelPort.Text.Trim();
+
             Properties.Settings.Default.Save();
             this.Close();
         }

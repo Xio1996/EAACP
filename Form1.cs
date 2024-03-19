@@ -43,6 +43,9 @@ namespace EAACP
         public frmCP()
         {
             InitializeComponent();
+
+            Stellarium.IPAddress = Properties.Settings.Default.StelIP;
+            Stellarium.Port = Properties.Settings.Default.StelPort;
            
             if (Properties.Settings.Default.YPos == -1)
             {
@@ -109,7 +112,7 @@ namespace EAACP
                 TimeSpan ts = stopwatch.Elapsed;
                 string elapsedTime = String.Format("{0:00}.{1:00}", ts.Seconds, ts.Milliseconds / 10);
                 //this.Text = "EAA CP (0.1) " + elapsedTime + "s";
-                this.Invoke(new Action(() => this.Text = "EAA CP (0.2) " + elapsedTime + "s"));
+                this.Invoke(new Action(() => this.Text = "EAA CP (0.3) " + elapsedTime + "s"));
                 stopwatch.Stop();
             }
             catch (Exception) { }
@@ -155,6 +158,10 @@ namespace EAACP
                 {
                     return apObjects.results.Objects[0];
                 }
+                else if (apObjects.error != 0)
+                {
+                    Speak(APHelper.WebServerErrorString(apObjects.error));
+                }
             }
             catch (Exception) { }
 
@@ -181,6 +188,10 @@ namespace EAACP
             if (apObjects.error == 0 && apObjects.results != null)
             {
                 return apObjects;
+            }
+            else if (apObjects.error != 0)
+            {
+                Speak(APHelper.WebServerErrorString(apObjects.error));
             }
 
             return null;
@@ -259,6 +270,9 @@ namespace EAACP
             // Format RA/Dec to hms and dms
             RA = APHelper.RADecimalHoursToHMS(SelectedObject.RA2000, @"hh\hmm\mss\.ff\s");
             Dec = APHelper.DecDecimalToDMS(SelectedObject.Dec2000);
+            
+            Stellarium.IPAddress = Properties.Settings.Default.StelIP;
+            Stellarium.Port = Properties.Settings.Default.StelPort;
 
             if ("ok" == Stellarium.SyncStellariumToAPObject(SelectedObject.ID, RA, Dec, SelectedObject.Type))
             {

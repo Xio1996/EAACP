@@ -61,7 +61,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("235")]
+        [global::System.Configuration.DefaultSettingValueAttribute("285")]
         public int frmHeight {
             get {
                 return ((int)(this["frmHeight"]));
@@ -140,6 +140,30 @@ namespace EAACP.Properties {
             }
             set {
                 this["QOAssociated"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
+        public string StelIP {
+            get {
+                return ((string)(this["StelIP"]));
+            }
+            set {
+                this["StelIP"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8090")]
+        public string StelPort {
+            get {
+                return ((string)(this["StelPort"]));
+            }
+            set {
+                this["StelPort"] = value;
             }
         }
     }
