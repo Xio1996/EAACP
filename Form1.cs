@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Timers;
 using System.Windows.Forms;
 using System.Speech.Synthesis;
+using System.Drawing;
 
 namespace EAACP
 {
@@ -40,6 +41,13 @@ namespace EAACP
             aTimer.AutoReset = true;
             aTimer.Enabled = true;
         }
+
+        private void EnableButtons(bool enabled)
+        {
+            foreach(Control control in this.Controls)
+            control.Enabled = enabled;
+        }
+
         public frmCP()
         {
             InitializeComponent();
@@ -75,6 +83,7 @@ namespace EAACP
             }
 
             SetTimer();
+
         }
 
         private void frmCP_FormClosing(object sender, FormClosingEventArgs e)
@@ -232,7 +241,8 @@ namespace EAACP
                 // Associated objects
                 formObs.Controls["chkAssociated"].Visible = bAssociated;
                 if (bAssociated)
-                { 
+                {
+                    ((CheckBox)formObs.Controls["chkAssociated"]).Checked = Properties.Settings.Default.QOAssociated;
                     formObs.Controls["chkAssociated"].Text = "Log " + AssociatedCount.ToString() + " associated object" + $"{(AssociatedCount > 1 ? "s" : "")}"; 
                 }
 
@@ -246,12 +256,25 @@ namespace EAACP
                                                 
                 if (formObs.ShowDialog() == DialogResult.OK)
                 {
-                    string result = formObs.ObsNote;
-                    bool bLogAssociated = formObs.Associated;
-                    Properties.Settings.Default.QOAssociated = bLogAssociated;
-                   
-                    // Log the observation in AP
-                    APRunScript(3, bLogAssociated ? 1 : 0, result);
+                    btnQuickObs.Text = "Processing...";
+                    btnQuickObs.Refresh();
+                    EnableButtons(false);
+
+                    try
+                    {
+                        string result = formObs.ObsNote;
+                        bool bLogAssociated = formObs.Associated;
+                        Properties.Settings.Default.QOAssociated = bLogAssociated;
+
+                        // Log the observation in AP
+                        APRunScript(3, bLogAssociated ? 1 : 0, result);
+                    }
+                    catch (Exception) { }
+                    finally
+                    {
+                        btnQuickObs.Text = "Quick Observation";
+                        EnableButtons(true);
+                    }
                 }
             }
         }
@@ -307,25 +330,6 @@ namespace EAACP
 
         private void btnDSA_Click(object sender, EventArgs e)
         {
-            /*         // TODO: Add JPL query for minor bodies    
-                       string sOut = "";
-
-                       APGetCmdResult apOut = APGetObjects(1, 2, "");
-                       if (apOut == null)
-                       {
-                           Speak("No object selected");
-                           //MessageBox.Show("No objects selected in AstroPlanner.", "EAACtrl", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                           return;
-                       }
-
-                       foreach (APCmdObject obj in apOut.results.Objects)
-                       {
-                           // SharpCap DSA format sourced from AP only.
-                           sOut += DSAFormat(obj);
-                       }
-
-                       Clipboard.SetText(sOut);
-            */
             APRunScript(5, 0, "");
         }
 
@@ -335,6 +339,7 @@ namespace EAACP
             frmConfig.TopMost = true;   
             frmConfig.ShowDialog();
         }
+
     }
 
     public class APGetCmd
