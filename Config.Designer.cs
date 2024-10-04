@@ -32,13 +32,13 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.tabConfig = new System.Windows.Forms.TabControl();
             this.tabAP = new System.Windows.Forms.TabPage();
-            this.tabStel = new System.Windows.Forms.TabPage();
+            this.label3 = new System.Windows.Forms.Label();
             this.txtAPPort = new System.Windows.Forms.TextBox();
             this.txtAPIP = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.txtAuthentication = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
+            this.tabStel = new System.Windows.Forms.TabPage();
             this.label4 = new System.Windows.Forms.Label();
             this.txtStelPort = new System.Windows.Forms.TextBox();
             this.txtStelIP = new System.Windows.Forms.TextBox();
@@ -97,19 +97,15 @@
             this.tabAP.Text = "AstroPlanner";
             this.tabAP.UseVisualStyleBackColor = true;
             // 
-            // tabStel
+            // label3
             // 
-            this.tabStel.Controls.Add(this.label4);
-            this.tabStel.Controls.Add(this.txtStelPort);
-            this.tabStel.Controls.Add(this.txtStelIP);
-            this.tabStel.Controls.Add(this.label5);
-            this.tabStel.Location = new System.Drawing.Point(4, 22);
-            this.tabStel.Name = "tabStel";
-            this.tabStel.Padding = new System.Windows.Forms.Padding(3);
-            this.tabStel.Size = new System.Drawing.Size(297, 181);
-            this.tabStel.TabIndex = 1;
-            this.tabStel.Text = "Stellarium";
-            this.tabStel.UseVisualStyleBackColor = true;
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(9, 121);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(126, 15);
+            this.label3.TabIndex = 13;
+            this.label3.Text = "AP Port (default 8080)";
             // 
             // txtAPPort
             // 
@@ -158,15 +154,19 @@
             this.label1.TabIndex = 8;
             this.label1.Text = "AP Authentication string (Max. 31 characters)";
             // 
-            // label3
+            // tabStel
             // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(9, 121);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(126, 15);
-            this.label3.TabIndex = 13;
-            this.label3.Text = "AP Port (default 8080)";
+            this.tabStel.Controls.Add(this.label4);
+            this.tabStel.Controls.Add(this.txtStelPort);
+            this.tabStel.Controls.Add(this.txtStelIP);
+            this.tabStel.Controls.Add(this.label5);
+            this.tabStel.Location = new System.Drawing.Point(4, 22);
+            this.tabStel.Name = "tabStel";
+            this.tabStel.Padding = new System.Windows.Forms.Padding(3);
+            this.tabStel.Size = new System.Drawing.Size(297, 181);
+            this.tabStel.TabIndex = 1;
+            this.tabStel.Text = "Stellarium";
+            this.tabStel.UseVisualStyleBackColor = true;
             // 
             // label4
             // 

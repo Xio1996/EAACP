@@ -13,6 +13,9 @@ namespace EAACP
 {
     public partial class frmCP : Form
     {
+        // Error handling class
+        private EAAError aAError = new EAAError();
+
         // AstroPlanner Helper class - replaces AP functions in EAACtrl Panel
         private APHelper APHelper = new APHelper();
 
@@ -82,7 +85,7 @@ namespace EAACP
                 }
             }
 
-            SetTimer();
+            //SetTimer();
 
         }
 
@@ -108,26 +111,33 @@ namespace EAACP
             string sIP = Properties.Settings.Default.APIP + ":" + Properties.Settings.Default.APPort;
             string apWebServices = "http://" + sIP + "?cmd=launch&auth=" + Properties.Settings.Default.Auth + "&cmdformat=json&responseformat=json&payload=";
             apWebServices += ScriptPayload;
+            
             WebClient lwebClient = new WebClient();
             lwebClient.Encoding = Encoding.UTF8;
             lwebClient.Timeout = 120000; // 120 seconds timeout
+
             try
             {
-                aTimer.Enabled = false;
+               // aTimer.Enabled = false;
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
                 result = lwebClient.DownloadString(apWebServices);
 
                 TimeSpan ts = stopwatch.Elapsed;
                 string elapsedTime = String.Format("{0:00}.{1:00}", ts.Seconds, ts.Milliseconds / 10);
-                //this.Text = "EAA CP (0.1) " + elapsedTime + "s";
+
                 this.Invoke(new Action(() => this.Text = "EAA CP (0.3) " + elapsedTime + "s"));
                 stopwatch.Stop();
             }
-            catch (Exception) { }
+            catch (System.Net.WebException)
+            {
+                aAError.ErrorNumber = -1;
+                result = "ConnFailed";
+            }
+            catch { }
             finally { lwebClient.Dispose(); }
             
-            aTimer.Enabled = true;
+            // aTimer.Enabled = true;
             
             return result;
         }
@@ -155,6 +165,8 @@ namespace EAACP
         {
             try
             {
+                aAError.Reset();
+
                 APGetCmd getCmd = new APGetCmd();
                 getCmd.script = "EAACP";
                 getCmd.parameters = new APGetCmdParams();
@@ -162,14 +174,21 @@ namespace EAACP
                 getCmd.parameters.Option = 1;
 
                 string sOut = APExecuteScript(Uri.EscapeDataString(JsonSerializer.Serialize<APGetCmd>(getCmd)));
-                APGetCmdResult apObjects = JsonSerializer.Deserialize<APGetCmdResult>(sOut);
-                if (apObjects.error == 0 && apObjects.results.Objects != null)
+                if (aAError.ErrorNumber != 0)
                 {
-                    return apObjects.results.Objects[0];
+                    Speak(aAError.Message);
                 }
-                else if (apObjects.error != 0)
+                else
                 {
-                    Speak(APHelper.WebServerErrorString(apObjects.error));
+                    APGetCmdResult apObjects = JsonSerializer.Deserialize<APGetCmdResult>(sOut);
+                    if (apObjects.error == 0 && apObjects.results.Objects != null)
+                    {
+                        return apObjects.results.Objects[0];
+                    }
+                    else if (apObjects.error != 0)
+                    {
+                        Speak(aAError.ErrorMapping[apObjects.error]);
+                    }
                 }
             }
             catch (Exception) { }
@@ -179,6 +198,8 @@ namespace EAACP
 
         private APGetCmdResult APGetObjects(int Cmd, int Option, string ObjType)
         {
+            aAError.Reset();
+
             APGetCmd getCmd = new APGetCmd();
             getCmd.script = "EAACP";
             getCmd.parameters = new APGetCmdParams();
@@ -187,22 +208,27 @@ namespace EAACP
             getCmd.parameters.ObjType = ObjType;
 
             string sOut = APExecuteScript(Uri.EscapeDataString(JsonSerializer.Serialize<APGetCmd>(getCmd)));
-
-            // Corrects a bug in AP that does not close the JSON documents correctly (missing })
-            if (sOut.Contains("}]}") && !sOut.Contains("}]}}"))
+            if (aAError.ErrorNumber != 0)
             {
-                sOut += "}";
+                Speak(aAError.Message);
             }
-            APGetCmdResult apObjects = JsonSerializer.Deserialize<APGetCmdResult>(sOut);
-            if (apObjects.error == 0 && apObjects.results != null)
+            else
             {
-                return apObjects;
+                // Corrects a bug in AP that does not close the JSON documents correctly (missing })
+                if (sOut.Contains("}]}") && !sOut.Contains("}]}}"))
+                {
+                    sOut += "}";
+                }
+                APGetCmdResult apObjects = JsonSerializer.Deserialize<APGetCmdResult>(sOut);
+                if (apObjects.error == 0 && apObjects.results != null)
+                {
+                    return apObjects;
+                }
+                else if (apObjects.error != 0)
+                {
+                    Speak(aAError.ErrorMapping[apObjects.error]);
+                }
             }
-            else if (apObjects.error != 0)
-            {
-                Speak(APHelper.WebServerErrorString(apObjects.error));
-            }
-
             return null;
         }
 
@@ -214,10 +240,15 @@ namespace EAACP
             string sObjectName = "";
 
             APGetCmdResult apOut = APGetObjects(1, 2, "");
-            if (apOut == null)
+            if (aAError.ErrorNumber == 0 && apOut == null)
             {
                 Speak("No object selected");
                 //MessageBox.Show("No objects selected in AstroPlanner.", "EAACP", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (apOut == null)
+            {
                 return;
             }
 
@@ -282,10 +313,15 @@ namespace EAACP
         private void btnStelSync_Click(object sender, EventArgs e)
         {
             APCmdObject SelectedObject = APGetSelectedObject();
-            if (SelectedObject == null)
+            if (aAError.ErrorNumber == 0 && SelectedObject == null)
             {
                 Speak("No object selected");
                 //MessageBox.Show("No object selected in AstroPlanner.", "EAACtrl", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (SelectedObject == null)
+            {
                 return;
             }
 
@@ -297,15 +333,49 @@ namespace EAACP
             Stellarium.IPAddress = Properties.Settings.Default.StelIP;
             Stellarium.Port = Properties.Settings.Default.StelPort;
 
-            if ("ok" == Stellarium.SyncStellariumToAPObject(SelectedObject.ID, RA, Dec, SelectedObject.Type))
+            string sResult = "";
+            sResult = Stellarium.SyncStellariumToAPObject(SelectedObject.ID, RA, Dec, SelectedObject.Type);
+            if ("ok" == sResult)
             {
                 Speak("Selected");
+            }
+            else 
+            { 
+                if (Stellarium.Message == "StConnection")
+                {
+                    Speak("Cannot connect to planetarium, is planetarium running and remote control configured?");
+                }
             }
         }
 
         private void btnAddtoAP_Click(object sender, EventArgs e)
         {
-            APRunScript(6, 0, "");
+            APCmdObject obj = Stellarium.StellariumGetSelectedObjectInfo();
+            if (Stellarium.Message=="" && obj!=null)
+            {
+                APPutCmd aPPutCmd = new APPutCmd();
+                aPPutCmd.script = "EAACP";
+                aPPutCmd.parameters = new APPutCmdParams();
+                aPPutCmd.parameters.Cmd = 2;
+                aPPutCmd.parameters.Option = 1;
+                aPPutCmd.parameters.Objects = new List<APCmdObject> { obj };
+                string sOut = APExecuteScript(Uri.EscapeDataString(JsonSerializer.Serialize<APPutCmd>(aPPutCmd)));
+                if (aAError.ErrorNumber != 0)
+                {
+                    Speak(aAError.Message);
+                    return;
+                }
+            }
+            else 
+            {
+                if (Stellarium.Message == "StConnection")
+                {
+                    Speak("Cannot connect to planetarium, is planetarium running and remote control configured?");
+                }
+            }
+
+            // AstroPlanner script to perform the same action
+            //APRunScript(6, 0, "");
         }
 
         private string DSAFormat(APCmdObject obj)
@@ -330,7 +400,30 @@ namespace EAACP
 
         private void btnDSA_Click(object sender, EventArgs e)
         {
-            APRunScript(5, 0, "");
+            /* Creates DSA for AP objects - ToDo if minor body then optionally use JPL webservices.
+            APCmdObject SelectedObject = APGetSelectedObject();
+            if (SelectedObject == null)
+            {
+                Speak("No object selected");
+                //MessageBox.Show("No object selected in AstroPlanner.", "EAACtrl", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            Clipboard.SetText(DSAFormat(SelectedObject));
+            */
+
+            string sOut = APRunScript(5, 0, "");
+            if (aAError.ErrorNumber != 0)
+            {
+                Speak(aAError.Message);
+                return;
+            }
+
+            APGetCmdResult apObjects = JsonSerializer.Deserialize<APGetCmdResult>(sOut);
+            if (apObjects.error != 0)
+            {
+                Speak(aAError.ErrorMapping[apObjects.error]);
+            }
         }
 
         private void btnConfig_Click(object sender, EventArgs e)
@@ -340,6 +433,19 @@ namespace EAACP
             frmConfig.ShowDialog();
         }
 
+    }
+
+    public class APPutCmd
+    {
+        public string script { get; set; }
+        public APPutCmdParams parameters { get; set; }
+    }
+
+    public class APPutCmdParams
+    {
+        public int Cmd { get; set; }
+        public int Option { get; set; }
+        public List<APCmdObject> Objects { get; set; }
     }
 
     public class APGetCmd

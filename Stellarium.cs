@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace EAACP
 {
@@ -26,7 +27,7 @@ namespace EAACP
 
         private Dictionary<string, string> StelTypeMappings = new Dictionary<string, string>()
         {
-            {"galaxy","Galaxy"}, {"globular star cluster","Globular"}, {"open star cluster","Open"},
+            {"galaxy","Galaxy"}, {"active galaxy","ActGal"}, {"globular star cluster","Globular"}, {"open star cluster","Open"},
             {"star cluster","Open"}, {"cluster","Open"}, {"HII region","Neb"}, {"planetary nebula","P Neb"},
             {"reflection nebula","R Neb"}, {"dark nebula","DkNeb"}, {"nebula","Neb"},
             {"double star","Dbl"},{"star","Star"},{"supernova remnant","SNR"},{"asteroid","Minor"},
@@ -62,6 +63,7 @@ namespace EAACP
         public string SetStelAction(string sName)
         {
             string result = "";
+            sMsg = "";
 
             string sWebServiceURL = @"http://" + IPAddress + ":" + Port + "/api/stelaction/do";
             WebClient lwebClient = new WebClient();
@@ -75,11 +77,14 @@ namespace EAACP
 
                 TimeSpan ts = stopwatch.Elapsed;
                 string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                sMsg = "SetStAction: " + sName + "(" + elapsedTime + "\r\n";
             }
-            catch (Exception e)
+            catch (System.Net.WebException)
             {
-                sMsg = "SetStAction ERROR " + e.Message + "\r\n";
+                sMsg = "StConnection";
+            }
+            catch (Exception)
+            {
+                sMsg = "StError";
                 result = "exception";
             }
             finally
@@ -93,6 +98,7 @@ namespace EAACP
         public string SetStelProperty(string sName, string sValue)
         {
             string result = "";
+            sMsg = "";
 
             string sWebServiceURL = @"http://" + IPAddress + ":" + Port + "/api/stelproperty/set";
             WebClient lwebClient = new WebClient();
@@ -105,11 +111,14 @@ namespace EAACP
 
                 TimeSpan ts = stopwatch.Elapsed;
                 string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                sMsg = "SetStProp: " + sName + ":" + sValue + "(" + elapsedTime + "\r\n";
             }
-            catch (Exception e)
+            catch (System.Net.WebException)
             {
-                sMsg = "SetStProp ERROR " + e.Message + "\r\n";
+                sMsg = "StConnection";
+            }
+            catch (Exception)
+            {
+                sMsg = "StError";
                 result = "exception";
             }
             finally
@@ -122,6 +131,7 @@ namespace EAACP
         public string SetStellariumFOV(int iFOV)
         {
             string result = "";
+            sMsg = "";
 
             string sWebServiceURL = "http://" + IPAddress + ":" + Port + "/api/main/fov";
 
@@ -140,11 +150,14 @@ namespace EAACP
                 TimeSpan ts = stopwatch.Elapsed;
 
                 string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                sMsg = "SetStFOV " + iFOV.ToString() + "deg (" + elapsedTime + ")\r\n";
+            }
+            catch (System.Net.WebException)
+            {
+                sMsg = "StConnection";
             }
             catch (Exception)
             {
-                sMsg = "SetStFOV ERROR \r\n";
+                sMsg = "StError";
             }
             finally
             {
@@ -155,6 +168,7 @@ namespace EAACP
 
         public string SyncStellariumToPosition(double RA, double Dec)
         {
+            sMsg = "";
             string result = "";
             string sWebServiceURL = "http://" + IPAddress + ":" + Port + "/api/main/focus";
             string sPos = RA.ToString() + ", " + Dec.ToString();
@@ -182,11 +196,14 @@ namespace EAACP
 
                 TimeSpan ts = stopwatch.Elapsed;
                 string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                sMsg = "SyncStToPos " + sPos + " (" + elapsedTime + ")\r\n";
+            }
+            catch (System.Net.WebException)
+            {
+                sMsg = "StConnection";
             }
             catch (Exception)
             {
-                sMsg = "SyncStToPos ERROR \r\n";
+                sMsg = "StError";
             }
             finally
             {
@@ -197,6 +214,7 @@ namespace EAACP
 
         public string StellariumToAltAzPosition(double Alt, double Az)
         {
+            sMsg = "";
             string result = "";
             string sWebServiceURL = "http://" + IPAddress + ":" + Port + "/api/main/view";
             string sPos = Alt.ToString() + ", " + Az.ToString();
@@ -221,11 +239,14 @@ namespace EAACP
 
                 TimeSpan ts = stopwatch.Elapsed;
                 string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                sMsg = "SyncStToAltAz " + sPos + " (" + elapsedTime + ")\r\n";
+            }
+            catch (System.Net.WebException)
+            {
+                sMsg = "StConnection";
             }
             catch (Exception)
             {
-                sMsg = "SyncStToAltAz ERROR \r\n";
+                sMsg = "StError";
             }
             finally
             {
@@ -236,6 +257,7 @@ namespace EAACP
 
         public string StellariumMove(double X, double Y)
         {
+            sMsg = "";
             string result = "";
             string sWebServiceURL = "http://" + IPAddress + ":" + Port + "/api/main/move";
             string sPos = X.ToString() + ", " + Y.ToString();
@@ -255,11 +277,14 @@ namespace EAACP
 
                 TimeSpan ts = stopwatch.Elapsed;
                 string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                sMsg = "StMove " + sPos + " (" + elapsedTime + ")\r\n";
+            }
+            catch (System.Net.WebException)
+            {
+                sMsg = "StConnection";
             }
             catch (Exception)
             {
-                sMsg = "StMove ERROR \r\n";
+                sMsg = "StError";
             }
             finally
             {
@@ -271,6 +296,7 @@ namespace EAACP
         public string SyncStellariumToID(string sID)
         {
             string result = "";
+            sMsg = "";
 
             string sWebServiceURL = "http://" + IPAddress + ":" + Port + "/api/main/focus";
 
@@ -288,11 +314,14 @@ namespace EAACP
 
                 TimeSpan ts = stopwatch.Elapsed;
                 string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                sMsg = "SyncToID " + sID + " (" + elapsedTime + ")\r\n";
+            }
+            catch (System.Net.WebException)
+            {
+                sMsg = "StConnection";
             }
             catch (Exception)
             {
-                sMsg = "SyncStToID ERROR \r\n";
+                sMsg = "SyncStToID";
             }
             finally
             {
@@ -304,6 +333,7 @@ namespace EAACP
         public string SyncStellariumToAPObject(string sID, string sRA, string sDec, string sType)
         {
             string result = "";
+            sMsg = "";
 
             string sWebServiceURL = "http://" + IPAddress + ":" + Port + "/api/scripts/direct";
 
@@ -323,11 +353,14 @@ namespace EAACP
 
                 TimeSpan ts = stopwatch.Elapsed;
                 string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                sMsg = "SyncStToAPObj " + sID + " " + sRA + ", " + sDec + " (" + elapsedTime + ")\r\n";
+            }
+            catch (System.Net.WebException)
+            {
+                sMsg = "StConnection";
             }
             catch (Exception)
             {
-                sMsg = "SyncStToAPObj ERROR \r\n";
+                sMsg = "SyncStToAPObj";
             }
             finally
             {
@@ -339,6 +372,7 @@ namespace EAACP
         public string StellariumRemoveMarker(string sMarkerName)
         {
             string result = "";
+            sMsg = "";
 
             string sWebServiceURL = "http://" + IPAddress + ":" + Port + "/api/scripts/direct";
 
@@ -359,11 +393,14 @@ namespace EAACP
 
                 TimeSpan ts = stopwatch.Elapsed;
                 string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                sMsg = "StRemoveMarker (" + elapsedTime + ")\r\n";
+            }
+            catch (System.Net.WebException)
+            {
+                sMsg = "StConnection";
             }
             catch (Exception)
             {
-                sMsg = "StRemoveMarker ERROR \r\n";
+                sMsg = "StRemoveMarker";
             }
             finally
             {
@@ -372,12 +409,56 @@ namespace EAACP
             return result;
         }
 
+        public string StellariumGetDesignation(string Designation, string Ignore, bool FirstOnly)
+        {
+            string sOut = "";
+            string[] sIDs;
+            bool bFirst = true;
+
+            Designation.Replace(" ", "");
+            if ( Designation !="")
+            {
+                sIDs = Designation.Split('-');
+
+                if (FirstOnly)
+                {
+                    return sIDs[0].Trim();
+                }
+
+                foreach (string sID in sIDs) 
+                { 
+                    if (sID.Trim() != Ignore)
+                    {
+                        if (!bFirst)
+                        {
+                            sOut += ", ";
+                        }
+
+                        sOut+= sID.Trim();
+                        bFirst = false;
+                    }
+                }
+            }
+
+            return sOut;
+        }
+
+        public string StDegtoArcmins(double StDegrees)
+        {
+            if (!double.IsNaN(StDegrees))
+            {
+                return (StDegrees * 60).ToString("#.00");
+            }
+
+            return "";
+        }
+
         public APCmdObject StellariumGetSelectedObjectInfo()
         {
             string result = "";
             JsonNode oSelectedObject = null;
             APCmdObject apObject = new APCmdObject();
-
+            sMsg = "";
 
             string sWebServiceURL = "http://" + IPAddress + ":" + Port + "/api/objects/info?format=json";
 
@@ -392,11 +473,54 @@ namespace EAACP
                 if (result != "")
                 {
                     oSelectedObject = JsonNode.Parse(result);
+
                     apObject.RA2000 = StelRAtoAPRA((double)oSelectedObject["raJ2000"]);
                     apObject.Dec2000 = (double)oSelectedObject["decJ2000"];
                     apObject.Type = APTypeFromStellariumType((string)oSelectedObject["object-type"]);
                     apObject.Catalogue = "Stellarium";
                     apObject.Constellation = (string)oSelectedObject["iauConstellation"];
+
+                    string soName = (string)oSelectedObject["name"];
+                    string soDesignation = (string)oSelectedObject["designations"];
+                    string soLocalisedName = (string)oSelectedObject["localized-name"];
+                    bool bUsedLocalised = false;
+
+                    // Decide which name(s) we are going to use for AP ID
+                    if (soLocalisedName != "")
+                    {
+                        apObject.ID = soLocalisedName;
+                        bUsedLocalised = true;
+                    }
+                    else if (soName != "")
+                    {
+                        apObject.ID = soName;
+                    }
+                    else if (soDesignation != "")
+                    {
+                        apObject.ID = StellariumGetDesignation(soDesignation, "", true);
+                    }
+                    else 
+                    {
+                        apObject.ID = "Stellarium";
+                    }
+
+                    // Add other names to AP Name field
+                    if (soDesignation != "")
+                    {
+                        apObject.Name = StellariumGetDesignation(soDesignation, apObject.ID, false);
+                    }
+
+                    if (bUsedLocalised) 
+                    { 
+                        if (apObject.Name != "")
+                        {
+                            apObject.Name += "," + soName;
+                        }
+                        else
+                        {
+                            apObject.Name = soName;
+                        }
+                    }
 
                     bool bMagFound = false;
                     if (!double.IsNaN((double)(oSelectedObject["vmag"])))
@@ -426,20 +550,40 @@ namespace EAACP
                         apObject.PosAngle = (int)oSelectedObject["orientation-angle"];
                     }
 
-                    //Size
-                    //ID
-                    //Name(s)
-
+                    double dblMajorAxis = (double)(oSelectedObject["axis-major-dd"]);
+                    double dblMinorAxis = (double)(oSelectedObject["axis-minor-dd"]);
+                    if (!double.IsNaN(dblMajorAxis) && !double.IsNaN(dblMinorAxis))
+                    {
+                        if (dblMajorAxis > 0 && dblMinorAxis > 0)
+                        {
+                            // Convert degrees to arcminutes
+                            apObject.Size = StDegtoArcmins(dblMajorAxis) + "x" + StDegtoArcmins(dblMinorAxis);
+                        }
+                    }
+                    else
+                    {
+                        double dblSize = (double)oSelectedObject["size-dd"];
+                        if (!double.IsNaN(dblSize))
+                        {
+                            if (dblSize > 0)
+                            {
+                                apObject.Size = StDegtoArcmins(dblSize);
+                            }
+                        }
+                    }
                 }
 
                 TimeSpan ts = stopwatch.Elapsed;
 
                 string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                sMsg = "StGetSelectedObj (" + elapsedTime + ")\r\n";
+            }
+            catch(System.Net.WebException)
+            {
+                    sMsg = "StConnection";
             }
             catch (Exception)
             {
-                sMsg = "StGetSelectedObj ERROR \r\n";
+                sMsg = "StGetSelectedObj";
             }
             finally
             {
