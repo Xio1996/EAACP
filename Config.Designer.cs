@@ -39,6 +39,8 @@
             this.txtAuthentication = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tabStel = new System.Windows.Forms.TabPage();
+            this.txtStellariumScriptDirectory = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.txtStelPort = new System.Windows.Forms.TextBox();
             this.txtStelIP = new System.Windows.Forms.TextBox();
@@ -156,6 +158,8 @@
             // 
             // tabStel
             // 
+            this.tabStel.Controls.Add(this.txtStellariumScriptDirectory);
+            this.tabStel.Controls.Add(this.label6);
             this.tabStel.Controls.Add(this.label4);
             this.tabStel.Controls.Add(this.txtStelPort);
             this.tabStel.Controls.Add(this.txtStelIP);
@@ -167,6 +171,25 @@
             this.tabStel.TabIndex = 1;
             this.tabStel.Text = "Stellarium";
             this.tabStel.UseVisualStyleBackColor = true;
+            // 
+            // txtStellariumScriptDirectory
+            // 
+            this.txtStellariumScriptDirectory.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtStellariumScriptDirectory.Location = new System.Drawing.Point(12, 147);
+            this.txtStellariumScriptDirectory.MaxLength = 31;
+            this.txtStellariumScriptDirectory.Name = "txtStellariumScriptDirectory";
+            this.txtStellariumScriptDirectory.Size = new System.Drawing.Size(273, 24);
+            this.txtStellariumScriptDirectory.TabIndex = 19;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(12, 124);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(148, 15);
+            this.label6.TabIndex = 18;
+            this.label6.Text = "Stellarium Script Directory";
             // 
             // label4
             // 
@@ -251,5 +274,7 @@
         private System.Windows.Forms.TextBox txtStelPort;
         private System.Windows.Forms.TextBox txtStelIP;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox txtStellariumScriptDirectory;
+        private System.Windows.Forms.Label label6;
     }
 }

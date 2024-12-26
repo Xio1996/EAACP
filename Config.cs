@@ -29,6 +29,7 @@ namespace EAACP
             txtAPPort.Text = Properties.Settings.Default.APPort;
             txtStelIP.Text = Properties.Settings.Default.StelIP;
             txtStelPort.Text = Properties.Settings.Default.StelPort;
+            txtStellariumScriptDirectory.Text = Properties.Settings.Default.StScriptFolder;
             btnCancel.Select();
         }
 
@@ -40,6 +41,7 @@ namespace EAACP
 
             Properties.Settings.Default.StelIP = txtStelIP.Text.Trim();
             Properties.Settings.Default.StelPort = txtStelPort.Text.Trim();
+            Properties.Settings.Default.StScriptFolder = txtStellariumScriptDirectory.Text.Trim();
 
             Properties.Settings.Default.Save();
             this.Close();

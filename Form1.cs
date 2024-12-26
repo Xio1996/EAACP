@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
-using System.Text;
 using System.Text.Json;
 using System.Timers;
 using System.Windows.Forms;
 using System.Speech.Synthesis;
+using System.Net.Http;
+using System.Data;
 using System.Drawing;
 
 namespace EAACP
@@ -21,6 +21,10 @@ namespace EAACP
 
         // Stellarium Communication and processing class
         private Stellarium Stellarium = new Stellarium();
+
+        // HTTP Client
+        private static readonly HttpClient httpClient = new HttpClient();
+        private string sMsg = "";
 
         private static System.Timers.Timer aTimer;
 
@@ -54,10 +58,12 @@ namespace EAACP
         public frmCP()
         {
             InitializeComponent();
+            InitializeFlowLayoutPanel();
 
             Stellarium.IPAddress = Properties.Settings.Default.StelIP;
             Stellarium.Port = Properties.Settings.Default.StelPort;
-           
+            Stellarium.ScriptFolder = Properties.Settings.Default.StScriptFolder;
+
             if (Properties.Settings.Default.YPos == -1)
             {
                 this.CenterToScreen();
@@ -85,7 +91,7 @@ namespace EAACP
                 }
             }
 
-            //SetTimer();
+            SetTimer();
 
         }
 
@@ -98,47 +104,163 @@ namespace EAACP
             Properties.Settings.Default.Save();
         }
 
+        private Control draggedControl;
+        private bool isDragging = false;
+        private Point dragStartPoint = Point.Empty;
+
+        private void InitializeFlowLayoutPanel()
+        {
+            flpMain.AllowDrop = true;
+            foreach (Control control in flpMain.Controls)
+            {
+                control.MouseDown += Control_MouseDown;
+                control.MouseMove += Control_MouseMove;
+                control.MouseUp += Control_MouseUp;
+
+                if (control is Panel)
+                {
+                    foreach (Control subControl in control.Controls)
+                    {
+                        subControl.MouseDown += Control_MouseDown;
+                        subControl.MouseMove += Control_MouseMove;
+                        subControl.MouseUp += Control_MouseUp;
+                    }
+                }
+            }
+            flpMain.DragEnter += flpMain_DragEnter;
+            flpMain.DragDrop += flpMain_DragDrop;
+            flpMain.DragOver += flpMain_DragOver;
+        }
+
+        private void Control_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                draggedControl = sender as Control;
+                DoDragDrop(draggedControl, DragDropEffects.Move);
+            }
+            else
+            {
+                isDragging = false;
+                OnControlClick(sender, e);
+            }
+        }
+
+        private void OnControlClick(object sender, EventArgs e)
+        {
+            Control control = sender as Control;
+            if (control != null && control is Button)
+            {
+                ((Button)control).PerformClick();
+            }
+        }
+
+        private void Control_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                Point currentScreenPos = ((Control)sender).Parent.PointToScreen(e.Location);
+                Point newLocation = new Point(
+                    currentScreenPos.X - dragStartPoint.X,
+                    currentScreenPos.Y - dragStartPoint.Y);
+                if (((Control)sender).Parent is Panel)
+                {
+                    ((Control)sender).Parent.Location = newLocation;
+                }
+                else 
+                {
+                   this.Location = newLocation;
+                }
+            }
+        }
+
+        private void Control_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                isDragging = false;
+            }
+        }
+
+        private void flpMain_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(Control)))
+            {
+                e.Effect = DragDropEffects.Move;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void flpMain_DragDrop(object sender, DragEventArgs e)
+        {
+            Point point = flpMain.PointToClient(new Point(e.X, e.Y));
+            Control target = flpMain.GetChildAtPoint(point);
+
+            int targetIndex = flpMain.Controls.GetChildIndex(target, false);
+            if (!(draggedControl.Parent is FlowLayoutPanel))
+            {
+                flpMain.Controls.SetChildIndex(draggedControl.Parent, targetIndex);
+            }
+            else
+            {
+                flpMain.Controls.SetChildIndex(draggedControl, targetIndex);
+            }
+            flpMain.Invalidate();
+        }
+
+        private void flpMain_DragOver(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Move;
+        }
+
         private void Speak(string Speech)
         {
             var synthesizer = new SpeechSynthesizer();
             synthesizer.SetOutputToDefaultAudioDevice();
             synthesizer.Speak(Speech);
         }
-
-        private string APExecuteScript(string ScriptPayload)
+        
+        private string GetRequest(string url)
         {
             string result = "";
-            string sIP = Properties.Settings.Default.APIP + ":" + Properties.Settings.Default.APPort;
-            string apWebServices = "http://" + sIP + "?cmd=launch&auth=" + Properties.Settings.Default.Auth + "&cmdformat=json&responseformat=json&payload=";
+            try
+            {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                result = httpClient.GetStringAsync(url).GetAwaiter().GetResult();
+
+                TimeSpan ts = stopwatch.Elapsed;
+                string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
+                sMsg = $"Request to {url} {elapsedTime}\r\n";
+            }
+            catch (HttpRequestException e)
+            {
+                sMsg = $"Request {url} ERROR {e.Message}\r\n";
+                result = "exception";
+            }
+
+            return result;
+        }
+
+        public string APExecuteScript(string ScriptPayload)
+        {
+            string result = "";
+
+            string apWebServices = $"http://{Properties.Settings.Default.APIP}:{Properties.Settings.Default.APPort}?cmd=launch&auth={Properties.Settings.Default.Auth}&cmdformat=json&responseformat=json&payload=";
             apWebServices += ScriptPayload;
-            
-            WebClient lwebClient = new WebClient();
-            lwebClient.Encoding = Encoding.UTF8;
-            lwebClient.Timeout = 120000; // 120 seconds timeout
 
             try
             {
-               // aTimer.Enabled = false;
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-                result = lwebClient.DownloadString(apWebServices);
-
-                TimeSpan ts = stopwatch.Elapsed;
-                string elapsedTime = String.Format("{0:00}.{1:00}", ts.Seconds, ts.Milliseconds / 10);
-
-                this.Invoke(new Action(() => this.Text = "EAA CP (0.3) " + elapsedTime + "s"));
-                stopwatch.Stop();
+                aTimer.Enabled = false;
+                result = GetRequest(apWebServices);
             }
-            catch (System.Net.WebException)
-            {
-                aAError.ErrorNumber = -1;
-                result = "ConnFailed";
-            }
-            catch { }
-            finally { lwebClient.Dispose(); }
-            
-            // aTimer.Enabled = true;
-            
+            catch (Exception) { }
+
+            aTimer.Enabled = true;
             return result;
         }
 
@@ -152,7 +274,7 @@ namespace EAACP
                 getCmd.parameters = new APGetCmdParams();
                 getCmd.parameters.Cmd = Cmd;
                 getCmd.parameters.Option = Option;
-                getCmd.parameters.Notes = Notes;
+                getCmd.parameters.Params = Notes;
 
                 sOut = APExecuteScript(Uri.EscapeDataString(JsonSerializer.Serialize<APGetCmd>(getCmd)));
             }
@@ -229,6 +351,31 @@ namespace EAACP
                     Speak(aAError.ErrorMapping[apObjects.error]);
                 }
             }
+            return null;
+        }
+
+        private APGetCmdResult APGetObjects(int Cmd, int Option, string ObjType, string Params)
+        {
+            APGetCmd getCmd = new APGetCmd();
+            getCmd.script = "EAAControl2";
+            getCmd.parameters = new APGetCmdParams();
+            getCmd.parameters.Cmd = Cmd;
+            getCmd.parameters.Option = Option;
+            getCmd.parameters.ObjType = ObjType;
+            getCmd.parameters.Params = Params;
+
+            string sOut = APExecuteScript(Uri.EscapeDataString(JsonSerializer.Serialize<APGetCmd>(getCmd)));
+            // Corrects a bug in AP that does not close the JSON documents correctly (missing })
+            if (sOut.Contains("}]}") && !sOut.Contains("}]}}"))
+            {
+                sOut += "}";
+            }
+            APGetCmdResult apObjects = JsonSerializer.Deserialize<APGetCmdResult>(sOut);
+            if (apObjects.error == 0 && apObjects.results != null)
+            {
+                return apObjects;
+            }
+
             return null;
         }
 
@@ -351,7 +498,7 @@ namespace EAACP
         private void btnAddtoAP_Click(object sender, EventArgs e)
         {
             APCmdObject obj = Stellarium.StellariumGetSelectedObjectInfo();
-            if (Stellarium.Message=="" && obj!=null)
+            if (Stellarium.Message!="exception" && obj!=null)
             {
                 APPutCmd aPPutCmd = new APPutCmd();
                 aPPutCmd.script = "EAACP";
@@ -373,9 +520,6 @@ namespace EAACP
                     Speak("Cannot connect to planetarium, is planetarium running and remote control configured?");
                 }
             }
-
-            // AstroPlanner script to perform the same action
-            //APRunScript(6, 0, "");
         }
 
         private string DSAFormat(APCmdObject obj)
@@ -400,7 +544,7 @@ namespace EAACP
 
         private void btnDSA_Click(object sender, EventArgs e)
         {
-            /* Creates DSA for AP objects - ToDo if minor body then optionally use JPL webservices.
+            //Creates DSA for AP objects - ToDo if minor body then optionally use JPL webservices.
             APCmdObject SelectedObject = APGetSelectedObject();
             if (SelectedObject == null)
             {
@@ -410,20 +554,7 @@ namespace EAACP
             }
 
             Clipboard.SetText(DSAFormat(SelectedObject));
-            */
-
-            string sOut = APRunScript(5, 0, "");
-            if (aAError.ErrorNumber != 0)
-            {
-                Speak(aAError.Message);
-                return;
-            }
-
-            APGetCmdResult apObjects = JsonSerializer.Deserialize<APGetCmdResult>(sOut);
-            if (apObjects.error != 0)
-            {
-                Speak(aAError.ErrorMapping[apObjects.error]);
-            }
+            Speak("DSA copied to clipboard");
         }
 
         private void btnConfig_Click(object sender, EventArgs e)
@@ -433,6 +564,145 @@ namespace EAACP
             frmConfig.ShowDialog();
         }
 
+        private void btnSearchOptions_Click(object sender, EventArgs e)
+        {
+            using (StelFOVOptions frmOpt = new StelFOVOptions())
+            {
+                frmOpt.TopMost = true;
+                if (frmOpt.ShowDialog() == DialogResult.OK)
+                {
+
+                }
+            }
+        }
+
+        private string CreateSearchParams(double SearchRA, double SearchDec)
+        {
+            string sParams, sType = string.Empty;
+
+            sParams = Properties.Settings.Default.sfMagnitude;
+            if (Properties.Settings.Default.sfAll)
+            {
+                sType = "All";
+            }
+            else if (Properties.Settings.Default.sfStars)
+            {
+                sType = "Star";
+            }
+            else if (Properties.Settings.Default.sfGalaxies)
+            {
+                sType = "Galaxy";
+            }
+            else if (Properties.Settings.Default.sfQuasars)
+            {
+                sType = "Quasar";
+            }
+            else if (Properties.Settings.Default.sfDouble)
+            {
+                sType = "Double";
+            }
+            else if (Properties.Settings.Default.sfVariable)
+            {
+                sType = "Variable";
+            }
+            else if (Properties.Settings.Default.sfGlobulars)
+            {
+                sType = "Cluster";
+            }
+            else if (Properties.Settings.Default.sfNebulae)
+            {
+                sType = "Nebula";
+            }
+
+            sParams += "|" + sType;
+            if (Properties.Settings.Default.sfNoMag)
+            {
+                sParams += "|1";
+            }
+            else
+            {
+                sParams += "|0";
+            }
+
+            if (Properties.Settings.Default.SearchRadius > 0)
+            {
+                sParams += "|" + Properties.Settings.Default.SearchRadius.ToString();
+            }
+            else
+            {
+                sParams += "|0.5";
+            }
+
+            sParams += "|" + SearchRA.ToString() + "|" + SearchDec.ToString();
+
+            return sParams;
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            double SearchRA = 999, SearchDec = 999;
+            if (Properties.Settings.Default.sfPlanetarium)
+            {
+                APCmdObject ap = null;
+                ap = Stellarium.StellariumGetSelectedObjectInfo();
+
+                if (ap == null)
+                {
+                    Speak("No object selected in Stellarium");
+                    return;
+                }
+
+                SearchRA = ap.RA2000;
+                SearchDec = ap.Dec2000;
+            }
+
+            if (Properties.Settings.Default.sfDatasource == 0)
+            {
+                // Store the search results for DSA and Search List display
+                List<string[]> listOfSearchResults;
+
+                APGetCmdResult apOut = APGetObjects(5, 2, "", CreateSearchParams(SearchRA, SearchDec));
+                if (apOut == null)
+                {
+                    Speak("No search results");
+                    //MessageBox.Show("No objects selected in AstroPlanner.", "EAACtrl", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                listOfSearchResults = Stellarium.DrawObjects(apOut);
+
+                // Add search objects in SharpCap DSA format to the clipboard
+                if (Properties.Settings.Default.sSharpCapDSA)
+                {
+                    string sDSA = "";
+                    foreach (APCmdObject obj in apOut.results.Objects)
+                    {
+                        sDSA += DSAFormat(obj);
+                    }
+                    Clipboard.SetText(sDSA);
+                }
+
+                // Show search results window
+                if (Properties.Settings.Default.sResultsList)
+                {
+                    using (SearchResults frmOpt = new SearchResults())
+                    {
+                        frmOpt.EAACP = this;
+                        frmOpt.TopMost = true;
+                        frmOpt.Results = listOfSearchResults;
+                        if (frmOpt.ShowDialog() == DialogResult.OK)
+                        {
+
+                        }
+                    }
+                }
+            }
+        }
+
+        private void btnClearSearch_Click(object sender, EventArgs e)
+        {
+            Stellarium.ClearObjects();
+        }
     }
 
     public class APPutCmd
@@ -459,7 +729,7 @@ namespace EAACP
         public int Cmd { get; set; }
         public int Option { get; set; }
         public string ObjType { get; set; }
-        public string Notes { get; set; }
+        public string Params { get; set; }
     }
 
     public class APGetCmdResult
@@ -482,23 +752,12 @@ namespace EAACP
         public string Constellation { get; set; }
         public string Catalogue { get; set; }
         public string Distance { get; set; }
+        public string GalaxyType { get; set; }
         public int PosAngle { get; set; }
         public double Magnitude { get; set; }
         public double RA2000 { get; set; }
         public double Dec2000 { get; set; }
+        public double ParallacticAngle { get; set; }
         public int Associated { get; set; }
-    }
-
-    public class WebClient : System.Net.WebClient
-    {
-        public int Timeout { get; set; } = 120*1000; // Default to 120 second timeout
-
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            WebRequest lWebRequest = base.GetWebRequest(uri);
-            lWebRequest.Timeout = Timeout;
-            ((HttpWebRequest)lWebRequest).ReadWriteTimeout = Timeout;
-            return lWebRequest;
-        }
     }
 }
