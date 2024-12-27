@@ -97,10 +97,21 @@ namespace EAACP
 
         private void frmCP_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // Save the form location/size settings
             Properties.Settings.Default.XPos = this.Left;
             Properties.Settings.Default.YPos = this.Top;
             Properties.Settings.Default.frmWidth = this.Width;
             Properties.Settings.Default.frmHeight = this.Height;
+
+            // Save the control order
+            var controlOrder = new System.Collections.Specialized.StringCollection();
+            foreach (Control control in flpMain.Controls)
+            {
+                controlOrder.Add(control.Name);
+            }
+            Properties.Settings.Default.controlOrder = controlOrder;
+
+
             Properties.Settings.Default.Save();
         }
 
@@ -110,6 +121,16 @@ namespace EAACP
 
         private void InitializeFlowLayoutPanel()
         {
+            var controlOrder = Properties.Settings.Default.controlOrder;
+            if (controlOrder != null && controlOrder.Count > 0)
+            {
+                for (int i = 0; i < controlOrder.Count; i++)
+                {
+                    Control control = flpMain.Controls[controlOrder[i]];
+                    flpMain.Controls.SetChildIndex(control, i);
+                }
+            }
+
             flpMain.AllowDrop = true;
             foreach (Control control in flpMain.Controls)
             {

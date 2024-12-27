@@ -69,7 +69,7 @@
             this.btnQuickObs.TabIndex = 0;
             this.btnQuickObs.Text = "Quick Observation";
             this.toolTip1.SetToolTip(this.btnQuickObs, "Logs observation in AstroPlanner");
-            this.btnQuickObs.UseVisualStyleBackColor = false;
+            this.btnQuickObs.UseVisualStyleBackColor = true;
             this.btnQuickObs.Click += new System.EventHandler(this.btnQuickObs_Click);
             // 
             // btnStelSync
