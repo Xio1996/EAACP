@@ -718,6 +718,14 @@ namespace EAACP
                     }
                 }
             }
+            else 
+            {
+                JPLHorizons jPLHorizons = new JPLHorizons(Properties.Settings.Default.SiteLat,
+                                                          Properties.Settings.Default.SiteLng,
+                                                          Properties.Settings.Default.SiteElev);
+                //jPLHorizons.SearchRadius = Properties.Settings.Default.SearchRadius;
+                string results = jPLHorizons.SmallBodySearchBox(SearchRA.ToString(), SearchDec.ToString(), 18,1);
+            }
         }
 
         private void btnClearSearch_Click(object sender, EventArgs e)

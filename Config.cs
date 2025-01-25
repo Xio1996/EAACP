@@ -30,6 +30,10 @@ namespace EAACP
             txtStelIP.Text = Properties.Settings.Default.StelIP;
             txtStelPort.Text = Properties.Settings.Default.StelPort;
             txtStellariumScriptDirectory.Text = Properties.Settings.Default.StScriptFolder;
+            txtLat.Text = Properties.Settings.Default.SiteLat.ToString();
+            txtLng.Text = Properties.Settings.Default.SiteLng.ToString();
+            txtElev.Text = Properties.Settings.Default.SiteElev.ToString();
+
             btnCancel.Select();
         }
 
@@ -42,6 +46,13 @@ namespace EAACP
             Properties.Settings.Default.StelIP = txtStelIP.Text.Trim();
             Properties.Settings.Default.StelPort = txtStelPort.Text.Trim();
             Properties.Settings.Default.StScriptFolder = txtStellariumScriptDirectory.Text.Trim();
+
+            Properties.Settings.Default.SiteLat = Double.Parse(txtLat.Text.Trim());
+            Properties.Settings.Default.SiteLng = Double.Parse(txtLat.Text.Trim());
+            Properties.Settings.Default.SiteElev = Double.Parse(txtElev.Text.Trim());
+
+            txtLng.Text = Properties.Settings.Default.SiteLng.ToString();
+            txtElev.Text = Properties.Settings.Default.SiteElev.ToString();
 
             Properties.Settings.Default.Save();
             this.Close();

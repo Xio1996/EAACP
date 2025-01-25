@@ -45,9 +45,17 @@
             this.txtStelPort = new System.Windows.Forms.TextBox();
             this.txtStelIP = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.tabLoc = new System.Windows.Forms.TabPage();
+            this.label7 = new System.Windows.Forms.Label();
+            this.txtLat = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.txtLng = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.txtElev = new System.Windows.Forms.TextBox();
             this.tabConfig.SuspendLayout();
             this.tabAP.SuspendLayout();
             this.tabStel.SuspendLayout();
+            this.tabLoc.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnSave
@@ -77,6 +85,7 @@
             // 
             this.tabConfig.Controls.Add(this.tabAP);
             this.tabConfig.Controls.Add(this.tabStel);
+            this.tabConfig.Controls.Add(this.tabLoc);
             this.tabConfig.Location = new System.Drawing.Point(5, 5);
             this.tabConfig.Name = "tabConfig";
             this.tabConfig.SelectedIndex = 0;
@@ -229,6 +238,79 @@
             this.label5.TabIndex = 14;
             this.label5.Text = "Stellarium Hostname/IP (default localhost)";
             // 
+            // tabLoc
+            // 
+            this.tabLoc.Controls.Add(this.label9);
+            this.tabLoc.Controls.Add(this.txtElev);
+            this.tabLoc.Controls.Add(this.label8);
+            this.tabLoc.Controls.Add(this.txtLng);
+            this.tabLoc.Controls.Add(this.label7);
+            this.tabLoc.Controls.Add(this.txtLat);
+            this.tabLoc.Location = new System.Drawing.Point(4, 22);
+            this.tabLoc.Name = "tabLoc";
+            this.tabLoc.Padding = new System.Windows.Forms.Padding(3);
+            this.tabLoc.Size = new System.Drawing.Size(297, 181);
+            this.tabLoc.TabIndex = 2;
+            this.tabLoc.Text = "Location";
+            this.tabLoc.UseVisualStyleBackColor = true;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(5, 7);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(83, 15);
+            this.label7.TabIndex = 19;
+            this.label7.Text = "Latitude (deg)";
+            // 
+            // txtLat
+            // 
+            this.txtLat.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtLat.Location = new System.Drawing.Point(6, 29);
+            this.txtLat.MaxLength = 31;
+            this.txtLat.Name = "txtLat";
+            this.txtLat.Size = new System.Drawing.Size(83, 24);
+            this.txtLat.TabIndex = 18;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.Location = new System.Drawing.Point(101, 7);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(94, 15);
+            this.label8.TabIndex = 21;
+            this.label8.Text = "Longitude (deg)";
+            // 
+            // txtLng
+            // 
+            this.txtLng.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtLng.Location = new System.Drawing.Point(102, 29);
+            this.txtLng.MaxLength = 31;
+            this.txtLng.Name = "txtLng";
+            this.txtLng.Size = new System.Drawing.Size(83, 24);
+            this.txtLng.TabIndex = 20;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.Location = new System.Drawing.Point(196, 7);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(79, 15);
+            this.label9.TabIndex = 23;
+            this.label9.Text = "Elevation (m)";
+            // 
+            // txtElev
+            // 
+            this.txtElev.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtElev.Location = new System.Drawing.Point(199, 29);
+            this.txtElev.MaxLength = 31;
+            this.txtElev.Name = "txtElev";
+            this.txtElev.Size = new System.Drawing.Size(83, 24);
+            this.txtElev.TabIndex = 22;
+            // 
             // Config
             // 
             this.AcceptButton = this.btnSave;
@@ -254,6 +336,8 @@
             this.tabAP.PerformLayout();
             this.tabStel.ResumeLayout(false);
             this.tabStel.PerformLayout();
+            this.tabLoc.ResumeLayout(false);
+            this.tabLoc.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -276,5 +360,12 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txtStellariumScriptDirectory;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TabPage tabLoc;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox txtLng;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox txtLat;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox txtElev;
     }
 }

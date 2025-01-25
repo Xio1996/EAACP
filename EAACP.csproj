@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APHelper.cs" />
+    <Compile Include="JPLHorizons.cs" />
     <Compile Include="Config.cs">
       <SubType>Form</SubType>
     </Compile>
