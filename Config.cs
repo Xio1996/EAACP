@@ -58,5 +58,12 @@ namespace EAACP
             this.Close();
         }
 
+        private void btnScriptFolder_Click(object sender, EventArgs e)
+        {
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            {
+                txtStellariumScriptDirectory.Text = folderBrowserDialog1.SelectedPath;
+            }
+        }
     }
 }

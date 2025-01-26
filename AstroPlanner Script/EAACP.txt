@@ -156,6 +156,7 @@ sub PutObjects(iOption as integer, ByRef oCmd as JSON)
 	a = oCmd.Child("Objects")
 	
 	dim i as integer
+	
 	for i=0 to a.Count-1
 		b =a.Child(i)
 		Debug b.Child("ID"), b.Child("Name"), b.Child("Type"), b.Child("Size"), b.Child("RA2000"), b.Child("Dec2000")
@@ -178,22 +179,23 @@ sub PutObjects(iOption as integer, ByRef oCmd as JSON)
 			obj.Magnitude = b.child("Magnitude")
 		end if
 	next i
+	
 end sub
 
 sub SearchObjects(iOption as integer, Params as string, ByRef Result as JSON)
 	
-	if Plan.SelectedObject = nil then
-		return
-	end if
-	
 	dim oSearch as APSearch = new APSearch
-	Debug "Do search", DoubleToStr(Plan.SelectedObject().RA), DoubleToStr(Plan.SelectedObject().Dec)
 	
 	// Get search filters
 	dim Magnitude as double = 999
 	dim bNoMag as boolean = false
 	dim sPA() as string = Split(Params,"|")
-	Debug Params, UBound(sPA)
+	Debug "SearchObjects:",Params, UBound(sPA)
+	
+	// If no RA/Dec and no selected object then nothing to search
+	if sPA(4)="999" and Plan.nSelectedObjects = 0 then
+		return
+	end if
 	
 	if sPA(0) <> "" then Magnitude = CDbl(sPA(0))
 	if sPA(2) = "1" then bNoMag = true

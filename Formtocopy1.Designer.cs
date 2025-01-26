@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.txtMagnitude = new System.Windows.Forms.TextBox();
             this.gbFilter = new System.Windows.Forms.GroupBox();
@@ -82,10 +83,10 @@
             this.gbSearchArea = new System.Windows.Forms.GroupBox();
             this.txtSearchRadius = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
-            this.cbSearchAreas = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.rbPlanetarium = new System.Windows.Forms.RadioButton();
             this.rbAstroPlanner = new System.Windows.Forms.RadioButton();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.gbFilter.SuspendLayout();
             this.gbDisplay.SuspendLayout();
             this.gbOtherOptions.SuspendLayout();
@@ -99,9 +100,10 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(5, 19);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(66, 13);
+            this.label1.Size = new System.Drawing.Size(57, 13);
             this.label1.TabIndex = 3;
-            this.label1.Text = "Magnitude >";
+            this.label1.Text = "Magnitude";
+            this.toolTip1.SetToolTip(this.label1, "Return all objects to the faintest magnitude");
             // 
             // txtMagnitude
             // 
@@ -156,6 +158,7 @@
             this.cbNoMag.Size = new System.Drawing.Size(67, 17);
             this.cbNoMag.TabIndex = 19;
             this.cbNoMag.Text = "No Mag.";
+            this.toolTip1.SetToolTip(this.cbNoMag, "Include objects with no magnitude data");
             this.cbNoMag.UseVisualStyleBackColor = true;
             // 
             // rbGlobulars
@@ -254,6 +257,7 @@
             this.label6.Size = new System.Drawing.Size(52, 13);
             this.label6.TabIndex = 9;
             this.label6.Text = "Dist Mpc ";
+            this.toolTip1.SetToolTip(this.label6, "Minimum and maximum distance in mega-parsecs");
             // 
             // rbGalaxies
             // 
@@ -509,11 +513,12 @@
             // label8
             // 
             this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.Location = new System.Drawing.Point(6, 112);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(89, 13);
+            this.label8.Size = new System.Drawing.Size(140, 13);
             this.label8.TabIndex = 14;
-            this.label8.Text = "Stellarium Display";
+            this.label8.Text = "Stellarium Marker Formatting";
             // 
             // chkRadialVelocity
             // 
@@ -612,6 +617,7 @@
             this.chkResultsList.Size = new System.Drawing.Size(117, 17);
             this.chkResultsList.TabIndex = 1;
             this.chkResultsList.Text = "Display Results List";
+            this.toolTip1.SetToolTip(this.chkResultsList, "Search results are displayed as a list");
             this.chkResultsList.UseVisualStyleBackColor = true;
             // 
             // chkSharpCapDSA
@@ -622,6 +628,7 @@
             this.chkSharpCapDSA.Size = new System.Drawing.Size(98, 17);
             this.chkSharpCapDSA.TabIndex = 0;
             this.chkSharpCapDSA.Text = "SharpCap DSA";
+            this.toolTip1.SetToolTip(this.chkSharpCapDSA, "Search results are added to the clipboard in SharpCap DSA format");
             this.chkSharpCapDSA.UseVisualStyleBackColor = true;
             // 
             // gbDatasource
@@ -639,20 +646,17 @@
             this.cbDatasource.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbDatasource.FormattingEnabled = true;
             this.cbDatasource.Items.AddRange(new object[] {
-            "AstroPlanner (All catalogues marked for search)",
-            "JPL Horizons (Minor Bodies)",
-            "GLADE+ (Galaxies & Quasars +23 million objects)",
-            "SIMBAD"});
+            "AstroPlanner (All catalogues marked for search)"});
             this.cbDatasource.Location = new System.Drawing.Point(10, 21);
             this.cbDatasource.Name = "cbDatasource";
             this.cbDatasource.Size = new System.Drawing.Size(368, 21);
             this.cbDatasource.TabIndex = 0;
+            this.toolTip1.SetToolTip(this.cbDatasource, "Source of search data");
             // 
             // gbSearchArea
             // 
             this.gbSearchArea.Controls.Add(this.txtSearchRadius);
             this.gbSearchArea.Controls.Add(this.label13);
-            this.gbSearchArea.Controls.Add(this.cbSearchAreas);
             this.gbSearchArea.Location = new System.Drawing.Point(3, 120);
             this.gbSearchArea.Name = "gbSearchArea";
             this.gbSearchArea.Size = new System.Drawing.Size(387, 52);
@@ -662,44 +666,33 @@
             // 
             // txtSearchRadius
             // 
-            this.txtSearchRadius.Location = new System.Drawing.Point(214, 21);
+            this.txtSearchRadius.Location = new System.Drawing.Point(82, 21);
             this.txtSearchRadius.MaxLength = 4;
             this.txtSearchRadius.Name = "txtSearchRadius";
             this.txtSearchRadius.Size = new System.Drawing.Size(43, 20);
             this.txtSearchRadius.TabIndex = 5;
+            this.toolTip1.SetToolTip(this.txtSearchRadius, "Search radius in degrees");
             // 
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(139, 25);
+            this.label13.Location = new System.Drawing.Point(7, 25);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(67, 13);
             this.label13.TabIndex = 4;
             this.label13.Text = "Radius (deg)";
             // 
-            // cbSearchAreas
-            // 
-            this.cbSearchAreas.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbSearchAreas.FormattingEnabled = true;
-            this.cbSearchAreas.Items.AddRange(new object[] {
-            "Custom",
-            "F6.3 533 (30\' x 30\')",
-            "F6.3 294 (51\' x 34\')"});
-            this.cbSearchAreas.Location = new System.Drawing.Point(10, 21);
-            this.cbSearchAreas.Name = "cbSearchAreas";
-            this.cbSearchAreas.Size = new System.Drawing.Size(121, 21);
-            this.cbSearchAreas.TabIndex = 0;
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.rbPlanetarium);
             this.groupBox1.Controls.Add(this.rbAstroPlanner);
+            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(3, 2);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(387, 50);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Search Centre Source";
+            this.groupBox1.Text = "Search Centre - Selected Object In...";
             // 
             // rbPlanetarium
             // 
@@ -710,6 +703,7 @@
             this.rbPlanetarium.TabIndex = 1;
             this.rbPlanetarium.TabStop = true;
             this.rbPlanetarium.Text = "Planetarium";
+            this.toolTip1.SetToolTip(this.rbPlanetarium, "Search centre is planetarium selected object");
             this.rbPlanetarium.UseVisualStyleBackColor = true;
             // 
             // rbAstroPlanner
@@ -721,6 +715,7 @@
             this.rbAstroPlanner.TabIndex = 0;
             this.rbAstroPlanner.TabStop = true;
             this.rbAstroPlanner.Text = "AstroPlanner";
+            this.toolTip1.SetToolTip(this.rbAstroPlanner, "Search centre is selected AP object");
             this.rbAstroPlanner.UseVisualStyleBackColor = true;
             // 
             // StelFOVOptions
@@ -811,7 +806,6 @@
         private System.Windows.Forms.GroupBox gbDatasource;
         private System.Windows.Forms.ComboBox cbDatasource;
         private System.Windows.Forms.GroupBox gbSearchArea;
-        private System.Windows.Forms.ComboBox cbSearchAreas;
         private System.Windows.Forms.TextBox txtSearchRadius;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.RadioButton rbGlobulars;
@@ -820,5 +814,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton rbPlanetarium;
         private System.Windows.Forms.RadioButton rbAstroPlanner;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

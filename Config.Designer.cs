@@ -46,12 +46,14 @@
             this.txtStelIP = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.tabLoc = new System.Windows.Forms.TabPage();
-            this.label7 = new System.Windows.Forms.Label();
-            this.txtLat = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.txtLng = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.txtElev = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.txtLng = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.txtLat = new System.Windows.Forms.TextBox();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.btnScriptFolder = new System.Windows.Forms.Button();
             this.tabConfig.SuspendLayout();
             this.tabAP.SuspendLayout();
             this.tabStel.SuspendLayout();
@@ -167,6 +169,7 @@
             // 
             // tabStel
             // 
+            this.tabStel.Controls.Add(this.btnScriptFolder);
             this.tabStel.Controls.Add(this.txtStellariumScriptDirectory);
             this.tabStel.Controls.Add(this.label6);
             this.tabStel.Controls.Add(this.label4);
@@ -185,9 +188,9 @@
             // 
             this.txtStellariumScriptDirectory.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtStellariumScriptDirectory.Location = new System.Drawing.Point(12, 147);
-            this.txtStellariumScriptDirectory.MaxLength = 31;
+            this.txtStellariumScriptDirectory.MaxLength = 1000;
             this.txtStellariumScriptDirectory.Name = "txtStellariumScriptDirectory";
-            this.txtStellariumScriptDirectory.Size = new System.Drawing.Size(273, 24);
+            this.txtStellariumScriptDirectory.Size = new System.Drawing.Size(226, 24);
             this.txtStellariumScriptDirectory.TabIndex = 19;
             // 
             // label6
@@ -225,7 +228,7 @@
             this.txtStelIP.Location = new System.Drawing.Point(9, 35);
             this.txtStelIP.MaxLength = 31;
             this.txtStelIP.Name = "txtStelIP";
-            this.txtStelIP.Size = new System.Drawing.Size(273, 24);
+            this.txtStelIP.Size = new System.Drawing.Size(279, 24);
             this.txtStelIP.TabIndex = 15;
             // 
             // label5
@@ -254,24 +257,24 @@
             this.tabLoc.Text = "Location";
             this.tabLoc.UseVisualStyleBackColor = true;
             // 
-            // label7
+            // label9
             // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(5, 7);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(83, 15);
-            this.label7.TabIndex = 19;
-            this.label7.Text = "Latitude (deg)";
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.Location = new System.Drawing.Point(196, 7);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(79, 15);
+            this.label9.TabIndex = 23;
+            this.label9.Text = "Elevation (m)";
             // 
-            // txtLat
+            // txtElev
             // 
-            this.txtLat.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtLat.Location = new System.Drawing.Point(6, 29);
-            this.txtLat.MaxLength = 31;
-            this.txtLat.Name = "txtLat";
-            this.txtLat.Size = new System.Drawing.Size(83, 24);
-            this.txtLat.TabIndex = 18;
+            this.txtElev.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtElev.Location = new System.Drawing.Point(199, 29);
+            this.txtElev.MaxLength = 31;
+            this.txtElev.Name = "txtElev";
+            this.txtElev.Size = new System.Drawing.Size(83, 24);
+            this.txtElev.TabIndex = 22;
             // 
             // label8
             // 
@@ -292,24 +295,34 @@
             this.txtLng.Size = new System.Drawing.Size(83, 24);
             this.txtLng.TabIndex = 20;
             // 
-            // label9
+            // label7
             // 
-            this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(196, 7);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(79, 15);
-            this.label9.TabIndex = 23;
-            this.label9.Text = "Elevation (m)";
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(5, 7);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(83, 15);
+            this.label7.TabIndex = 19;
+            this.label7.Text = "Latitude (deg)";
             // 
-            // txtElev
+            // txtLat
             // 
-            this.txtElev.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtElev.Location = new System.Drawing.Point(199, 29);
-            this.txtElev.MaxLength = 31;
-            this.txtElev.Name = "txtElev";
-            this.txtElev.Size = new System.Drawing.Size(83, 24);
-            this.txtElev.TabIndex = 22;
+            this.txtLat.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtLat.Location = new System.Drawing.Point(6, 29);
+            this.txtLat.MaxLength = 31;
+            this.txtLat.Name = "txtLat";
+            this.txtLat.Size = new System.Drawing.Size(83, 24);
+            this.txtLat.TabIndex = 18;
+            // 
+            // btnScriptFolder
+            // 
+            this.btnScriptFolder.Location = new System.Drawing.Point(244, 147);
+            this.btnScriptFolder.Name = "btnScriptFolder";
+            this.btnScriptFolder.Size = new System.Drawing.Size(44, 23);
+            this.btnScriptFolder.TabIndex = 20;
+            this.btnScriptFolder.Text = "...";
+            this.btnScriptFolder.UseVisualStyleBackColor = true;
+            this.btnScriptFolder.Click += new System.EventHandler(this.btnScriptFolder_Click);
             // 
             // Config
             // 
@@ -367,5 +380,7 @@
         private System.Windows.Forms.TextBox txtLat;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox txtElev;
+        private System.Windows.Forms.Button btnScriptFolder;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }

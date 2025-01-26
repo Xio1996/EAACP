@@ -643,5 +643,101 @@ namespace EAACP.Properties {
                 this["controlOrder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool objTxtID {
+            get {
+                return ((bool)(this["objTxtID"]));
+            }
+            set {
+                this["objTxtID"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool objTxtName {
+            get {
+                return ((bool)(this["objTxtName"]));
+            }
+            set {
+                this["objTxtName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool objTxtType {
+            get {
+                return ((bool)(this["objTxtType"]));
+            }
+            set {
+                this["objTxtType"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool objTxtMagnitude {
+            get {
+                return ((bool)(this["objTxtMagnitude"]));
+            }
+            set {
+                this["objTxtMagnitude"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string objTxtFilePath {
+            get {
+                return ((string)(this["objTxtFilePath"]));
+            }
+            set {
+                this["objTxtFilePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string objTxtManualText {
+            get {
+                return ((string)(this["objTxtManualText"]));
+            }
+            set {
+                this["objTxtManualText"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string objTxtMaxChars {
+            get {
+                return ((string)(this["objTxtMaxChars"]));
+            }
+            set {
+                this["objTxtMaxChars"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool objTxtConstellation {
+            get {
+                return ((bool)(this["objTxtConstellation"]));
+            }
+            set {
+                this["objTxtConstellation"] = value;
+            }
+        }
     }
 }

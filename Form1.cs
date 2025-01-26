@@ -8,6 +8,7 @@ using System.Speech.Synthesis;
 using System.Net.Http;
 using System.Data;
 using System.Drawing;
+using System.IO;
 
 namespace EAACP
 {
@@ -15,6 +16,9 @@ namespace EAACP
     {
         // Error handling class
         private EAAError aAError = new EAAError();
+
+        private const string StellariumSpeak = "stell-airium";
+        private const string AstroPlannerSpeak = "Astrow-planner";   
 
         // AstroPlanner Helper class - replaces AP functions in EAACtrl Panel
         private APHelper APHelper = new APHelper();
@@ -47,6 +51,26 @@ namespace EAACP
             aTimer.Elapsed += OnTimedEvent2;
             aTimer.AutoReset = true;
             aTimer.Enabled = true;
+        }
+
+        private bool IsProcessNameRunning(string name)
+        {
+            Process[] processes = Process.GetProcessesByName(name);
+            if (processes.Length > 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private bool IsStellariumRunning()
+        {
+            return IsProcessNameRunning("Stellarium");
+        }
+
+        private bool IsAPRunning()
+        {
+            return IsProcessNameRunning("AstroPlanner");
         }
 
         private void EnableButtons(bool enabled)
@@ -378,7 +402,7 @@ namespace EAACP
         private APGetCmdResult APGetObjects(int Cmd, int Option, string ObjType, string Params)
         {
             APGetCmd getCmd = new APGetCmd();
-            getCmd.script = "EAAControl2";
+            getCmd.script = "EAACP";
             getCmd.parameters = new APGetCmdParams();
             getCmd.parameters.Cmd = Cmd;
             getCmd.parameters.Option = Option;
@@ -406,6 +430,12 @@ namespace EAACP
             bool bMultiple =false;
             bool bAssociated = false;
             string sObjectName = "";
+
+            if (!IsAPRunning())
+            {
+                Speak(AstroPlannerSpeak + " is not running");
+                return;
+            }
 
             APGetCmdResult apOut = APGetObjects(1, 2, "");
             if (aAError.ErrorNumber == 0 && apOut == null)
@@ -480,6 +510,18 @@ namespace EAACP
 
         private void btnStelSync_Click(object sender, EventArgs e)
         {
+            if(!IsStellariumRunning())
+            {
+                Speak(StellariumSpeak + " is not running");
+                return;
+            }
+
+            if(!IsAPRunning())
+            {
+                Speak(AstroPlannerSpeak + " is not running");
+                return;
+            }
+
             APCmdObject SelectedObject = APGetSelectedObject();
             if (aAError.ErrorNumber == 0 && SelectedObject == null)
             {
@@ -518,6 +560,17 @@ namespace EAACP
 
         private void btnAddtoAP_Click(object sender, EventArgs e)
         {
+            if (!IsStellariumRunning())
+            {
+                Speak(StellariumSpeak + " is not running");
+                return;
+            }
+
+            if (!IsAPRunning())
+            {
+                Speak(AstroPlannerSpeak + " is not running");
+                return;
+            }
             APCmdObject obj = Stellarium.StellariumGetSelectedObjectInfo();
             if (Stellarium.Message!="exception" && obj!=null)
             {
@@ -533,6 +586,7 @@ namespace EAACP
                     Speak(aAError.Message);
                     return;
                 }
+                Speak("Object added to " + AstroPlannerSpeak);
             }
             else 
             {
@@ -565,6 +619,12 @@ namespace EAACP
 
         private void btnDSA_Click(object sender, EventArgs e)
         {
+            if (!IsAPRunning())
+            {
+                Speak(AstroPlannerSpeak + " is not running");
+                return;
+            }
+
             //Creates DSA for AP objects - ToDo if minor body then optionally use JPL webservices.
             APCmdObject SelectedObject = APGetSelectedObject();
             if (SelectedObject == null)
@@ -664,6 +724,12 @@ namespace EAACP
             double SearchRA = 999, SearchDec = 999;
             if (Properties.Settings.Default.sfPlanetarium)
             {
+                if (!IsStellariumRunning())
+                {
+                    Speak(StellariumSpeak + " is not running");
+                    return;
+                }
+
                 APCmdObject ap = null;
                 ap = Stellarium.StellariumGetSelectedObjectInfo();
 
@@ -676,17 +742,39 @@ namespace EAACP
                 SearchRA = ap.RA2000;
                 SearchDec = ap.Dec2000;
             }
+            else 
+            { 
+                if (!IsAPRunning())
+                {
+                    Speak(AstroPlannerSpeak + " is not running");
+                    return;
+                }
+            }
 
             if (Properties.Settings.Default.sfDatasource == 0)
             {
                 // Store the search results for DSA and Search List display
                 List<string[]> listOfSearchResults;
 
+                Speak("Searching");
+
                 APGetCmdResult apOut = APGetObjects(5, 2, "", CreateSearchParams(SearchRA, SearchDec));
                 if (apOut == null)
                 {
                     Speak("No search results");
                     //MessageBox.Show("No objects selected in AstroPlanner.", "EAACtrl", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(Properties.Settings.Default.StScriptFolder))
+                {
+                    Speak("No " +  StellariumSpeak + " script folder specified");
+                    return;
+                }
+
+                if (!Directory.Exists(Properties.Settings.Default.StScriptFolder))
+                {
+                    Speak("Invalid " + StellariumSpeak + " script folder specified");
                     return;
                 }
 
@@ -717,6 +805,10 @@ namespace EAACP
                         }
                     }
                 }
+                else 
+                {
+                    Speak(apOut.results.Objects.Count.ToString() + " objects found");
+                }
             }
             else 
             {
@@ -730,7 +822,82 @@ namespace EAACP
 
         private void btnClearSearch_Click(object sender, EventArgs e)
         {
+            if (!IsStellariumRunning())
+            {
+                Speak(StellariumSpeak + " is not running");
+                return;
+            }
+
             Stellarium.ClearObjects();
+        }
+
+        private void WriteObjectTextToFile(string objectText)
+        {
+            string textFilePath = Properties.Settings.Default.objTxtFilePath;
+            if (string.IsNullOrEmpty(textFilePath))
+            {
+                Speak("No object text file specified");
+                return;
+            }
+
+            try
+            {
+                System.IO.File.WriteAllText(textFilePath, objectText);
+            }
+            catch (Exception) 
+            {
+                Speak("Error writing object text file");
+            }
+        }
+
+        private void btnInfoTextOption_Click(object sender, EventArgs e)
+        {
+            using (ObjectTextOptions frmOpt = new ObjectTextOptions())
+            {
+                frmOpt.TopMost = true;
+                if (frmOpt.ShowDialog() == DialogResult.OK)
+                {               
+                    string manualText = Properties.Settings.Default.objTxtManualText;
+
+                    if (!string.IsNullOrEmpty(manualText))
+                    {
+                        WriteObjectTextToFile(manualText);
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void btnSetInfoText_Click(object sender, EventArgs e)
+        {
+            if (!IsAPRunning())
+            {
+                Speak(AstroPlannerSpeak + " is not running");
+                return;
+            }
+
+            APCmdObject SelectedObject = APGetSelectedObject();
+            if (aAError.ErrorNumber == 0 && SelectedObject == null)
+            {
+                Speak("No object selected");
+                return;
+            }
+
+            bool showID = Properties.Settings.Default.objTxtID;
+            bool showName = Properties.Settings.Default.objTxtName;
+            bool showType = Properties.Settings.Default.objTxtType;
+            bool showMagnitude = Properties.Settings.Default.objTxtMagnitude;
+            bool showConstellation = Properties.Settings.Default.objTxtConstellation;
+
+            int maxiChars = 10000;
+            string maxChars = Properties.Settings.Default.objTxtMaxChars;
+            if (!string.IsNullOrEmpty(maxChars))
+            {
+                maxiChars = int.TryParse(maxChars, out int i) ? i : 10000;
+            }
+            
+            string objectText = APHelper.TargetDisplay(SelectedObject, maxiChars,showID, showName,showConstellation, showType, showMagnitude );
+            WriteObjectTextToFile(objectText);
         }
     }
 

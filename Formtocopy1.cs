@@ -45,7 +45,6 @@ namespace EAACP
             Properties.Settings.Default.sfGlobulars = rbGlobulars.Checked;
             Properties.Settings.Default.sfNebulae = rbNebulae.Checked;
             Properties.Settings.Default.sfDatasource = cbDatasource.SelectedIndex;
-            Properties.Settings.Default.SearchArea = cbSearchAreas.SelectedIndex;
             Properties.Settings.Default.sfAstroPlanner = rbAstroPlanner.Checked;
             Properties.Settings.Default.sfPlanetarium = rbPlanetarium.Checked;
 
@@ -99,7 +98,6 @@ namespace EAACP
             rbGlobulars.Checked = Properties.Settings.Default.sfGlobulars;
             rbNebulae.Checked = Properties.Settings.Default.sfNebulae;
             cbDatasource.SelectedIndex = Properties.Settings.Default.sfDatasource;
-            cbSearchAreas.SelectedIndex = Properties.Settings.Default.SearchArea;
             txtSearchRadius.Text = Properties.Settings.Default.SearchRadius.ToString();
             cbNoMag.Checked = Properties.Settings.Default.sfNoMag;
             rbAstroPlanner.Checked = Properties.Settings.Default.sfAstroPlanner;

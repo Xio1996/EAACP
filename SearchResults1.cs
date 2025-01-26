@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Speech.Synthesis;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -180,6 +181,12 @@ namespace EAACP
         private void btnAddToAP_Click(object sender, EventArgs e)
         {
             List<APCmdObject> apObjects = new List<APCmdObject>();
+
+            DialogResult result = MessageBox.Show("Adding many objects to AstroPlanner, can take sometime and cannot be cancelled. Do you wish to continue?", "Add Objects to AstroPlanner", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (result == DialogResult.No)
+            {
+                return;
+            }
 
             foreach (DataGridViewRow row in dgvSearchResults.SelectedRows)
             {

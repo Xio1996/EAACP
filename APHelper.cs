@@ -127,68 +127,62 @@ namespace EAACP
             return dms;
         }
 
-        public string TargetDisplay(APCmdObject apObj)
+        public string TargetDisplay(APCmdObject apObj, int MaxDisplayLength, bool showID, bool showName, bool showConstellation, bool showType, bool showMagnitude)
         {
-            // How many characters of the objects name to display.
-            const int MaxDisplayLength = 50;
-            string sInfo = ""; string sName = "";
+            string sInfo = "";
             if (apObj != null)
             {
+                bool moreThanOne = false;
                 // Add the object ID to the information string
-                sInfo = apObj.ID;
+                if (showID)
+                {
+                    sInfo = apObj.ID;
+                    moreThanOne = true;
+                }
+                
                 // Decide which name field to use
-                if ((apObj.Name.Length) > 0)
+                if (showName && (apObj.Name.Length) > 0)
                 {
-                    if (apObj.Name.Contains(","))
-                    {
-                        // The default name field often contains multiple synonyms seperated by commas.
-                        // Check and only display 2 names at most.
-                        string[] sNames = apObj.Name.Split(',');
-
-                        // If the length of using two names exceeds maximum specifed then use first name only
-                        if (sNames[0].Length + sNames[1].Length + 1 > MaxDisplayLength)
-                        {
-                            sName = sNames[0];
-                        }
-                        else
-                        {
-                            sName = sNames[0] + ", " + sNames[1];
-                        }
-                    }
-                    else
-                    {
-                        sName = apObj.Name;
-                    }
-
-                    // Constrain the name's length to the required characters
-                    if (sName.Length > MaxDisplayLength)
-                    {
-                        sName = sName.Substring(0, MaxDisplayLength);
-                    }
-                    sInfo += ", " + sName;
+                    if (moreThanOne) sInfo += ", ";
+                    sInfo += apObj.Name;
                 }
 
-                sInfo += " (";
-
-                // If a distance field exists then add to information
-                if (apObj.Distance.Length > 0 && apObj.Distance != "???")
+                moreThanOne = false;
+                if (showConstellation || showType || showMagnitude)
                 {
-                    sInfo += apObj.Distance + " - ";
-                }
+                    sInfo += " (";
 
-                // Get the Objects constellation (abbreviation) and lookup the full name
-                sInfo += ConstellationFullName(apObj.Constellation);
+                    // Get the Objects constellation (abbreviation) and lookup the full name
+                    if (showConstellation)
+                    {
+                        sInfo += ConstellationFullName(apObj.Constellation);
+                        moreThanOne = true;
+                    }
 
-                // Add object type information
-                if (apObj.Type.Length > 0)
-                {
-                    sInfo += " - " + DisplayTypeFromAPType(apObj.Type) + ")";
-                }
-                else
-                {
+                    // Add object type information
+
+                    if (showType && apObj.Type.Length > 0)
+                    {
+                        if (moreThanOne) sInfo += " - ";
+                        sInfo += DisplayTypeFromAPType(apObj.Type);
+                        moreThanOne = true;
+                    }
+
+                    if (showMagnitude && apObj.Magnitude != 999)
+                    {
+                        if (moreThanOne) sInfo += " - ";
+                        sInfo += "mag " + apObj.Magnitude.ToString("F2");
+                    }
+
                     sInfo += ")";
                 }
             }
+
+            if (sInfo.Length > MaxDisplayLength)
+            {
+                sInfo = sInfo.Substring(0, MaxDisplayLength - 3) + "...";
+            }
+
             return sInfo;
         }
 

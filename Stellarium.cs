@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 
 namespace EAACP
 {
@@ -33,7 +34,7 @@ namespace EAACP
             {"galaxy","Galaxy"}, {"active galaxy","ActGal"}, {"globular star cluster","Globular"}, {"open star cluster","Open"},
             {"star cluster","Open"}, {"cluster","Open"}, {"HII region","Neb"}, {"planetary nebula","P Neb"},
             {"reflection nebula","R Neb"}, {"dark nebula","DkNeb"}, {"nebula","Neb"},
-            {"double star","Dbl"},{"star","Star"},{"supernova remnant","SNR"},{"asteroid","Minor"},
+            {"double star","Dbl"},{"star","Star"},{"supernova remnant","SNR"},{"asteroid","ext_Minor"},
             {"comet","ext_Comet"},{"planet","Planet"},{"moon","Planetary Moon"},{"artificial satellite","Artificial Satellite"}
         };
 
@@ -540,24 +541,32 @@ namespace EAACP
 
         public void DrawObjects(string varObjects)
         {
-            string sWebServiceURL = $"http://{IPAddress}:{Port}/api/scripts/run";
-
-            Color FontColour = Properties.Settings.Default.StFontColour;
-            string hexFontColor = $"#{FontColour.R:X2}{FontColour.G:X2}{FontColour.B:X2}";
-            FontColour = Properties.Settings.Default.StGraphicColour;
-            string hexGraphicColor = $"#{FontColour.R:X2}{FontColour.G:X2}{FontColour.B:X2}";
-
-            string sCode = "\r\nMarkerMgr.deleteAllMarkers();LabelMgr.deleteAllLabels();\r\nfor (i=0;i<obj.length;i++){MarkerMgr.markerEquatorial(obj[i][1], obj[i][2],true,true,\"" + Properties.Settings.Default.StGraphic + "\",\"" + hexGraphicColor + "\"," + Properties.Settings.Default.StGraphicSize + ",true);LabelMgr.labelEquatorial(obj[i][0],obj[i][1], obj[i][2],true," + Properties.Settings.Default.StFontSize + ",\"" + hexFontColor + "\",\"E\",12);}";
-
-            File.WriteAllText(ScriptFolder + "\\drawobjects.ssc", varObjects + sCode);
-
-            var content = new FormUrlEncodedContent(new[]
+            try
             {
+                string sWebServiceURL = $"http://{IPAddress}:{Port}/api/scripts/run";
+
+                Color FontColour = Properties.Settings.Default.StFontColour;
+                string hexFontColor = $"#{FontColour.R:X2}{FontColour.G:X2}{FontColour.B:X2}";
+                FontColour = Properties.Settings.Default.StGraphicColour;
+                string hexGraphicColor = $"#{FontColour.R:X2}{FontColour.G:X2}{FontColour.B:X2}";
+
+                string sCode = "\r\nMarkerMgr.deleteAllMarkers();LabelMgr.deleteAllLabels();\r\nfor (i=0;i<obj.length;i++){MarkerMgr.markerEquatorial(obj[i][1], obj[i][2],true,true,\"" + Properties.Settings.Default.StGraphic + "\",\"" + hexGraphicColor + "\"," + Properties.Settings.Default.StGraphicSize + ",true);LabelMgr.labelEquatorial(obj[i][0],obj[i][1], obj[i][2],true," + Properties.Settings.Default.StFontSize + ",\"" + hexFontColor + "\",\"E\",12);}";
+
+                File.WriteAllText(ScriptFolder + "\\drawobjects.ssc", varObjects + sCode);
+
+                var content = new FormUrlEncodedContent(new[]
+                {
                 new KeyValuePair<string, string>("id", "drawobjects.ssc")
             });
 
-            string result = PostRequest(sWebServiceURL, content);
-            sMsg = $"StelDrawObjects, {sMsg}";
+                string result = PostRequest(sWebServiceURL, content);
+                sMsg = $"StelDrawObjects, {sMsg}";
+            }
+            catch (Exception)
+            {
+                sMsg = $"StelDrawObjects, {sMsg}";
+            }
+
         }
 
         public void ClearObjects()
@@ -622,6 +631,28 @@ namespace EAACP
             return "";
         }
 
+        public string StellariumGetSelectedObjectName()
+        {
+            string result = "";
+            string sWebServiceURL = $"http://{IPAddress}:{Port}/api/objects/info?format=text";
+            result = GetRequest(sWebServiceURL);
+            sMsg = $"StelGetSelectedObjectName {sMsg}";
+            if (result != "")
+            {
+
+                string pattern = @"<h2>(.*?)<\/h2>";
+
+                MatchCollection matches = Regex.Matches(result, pattern);
+
+                if (matches.Count > 0)
+                {
+                    result = matches[0].Groups[1].Value.Trim();
+                    return result;
+                }
+            }
+            return "";
+        }
+
         public APCmdObject StellariumGetSelectedObjectInfo()
         {
             string result = "";
@@ -664,7 +695,16 @@ namespace EAACP
                 }
                 else
                 {
-                    apObject.ID = "Stellarium";
+                    // No name data is returned so try and scrape it from the info text displayed on screen
+                    string sName = StellariumGetSelectedObjectName();
+                    if (sName != "")
+                    {
+                        apObject.ID = sName;
+                    }
+                    else
+                    {
+                        apObject.ID = "Stellarium";
+                    }
                 }
 
                 // Add other names to AP Name field
@@ -701,7 +741,7 @@ namespace EAACP
 
                 if (!bMagFound)
                 {
-                    if (oSelectedObject["bMag"] != null)
+                    if (oSelectedObject["bmag"] != null)
                     {
                         if (!double.IsNaN((double)(oSelectedObject["bmag"])))
                         {
