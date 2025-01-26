@@ -1,4 +1,4 @@
-﻿// AstroPlanner Get/Set Objects
+// AstroPlanner Get/Set Objects
 //
 // This is a stripped down version of EAAControl2. It supports fetching selected object(s) in AP and adding object(s) to AP.
 // Additionally, this allows the execution of the Quick Observation script.

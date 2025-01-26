@@ -315,7 +315,7 @@ namespace EAACP
             try
             {
                 APGetCmd getCmd = new APGetCmd();
-                getCmd.script = "EAACP";
+                getCmd.script = "EAACP2";
                 getCmd.parameters = new APGetCmdParams();
                 getCmd.parameters.Cmd = Cmd;
                 getCmd.parameters.Option = Option;
@@ -335,7 +335,7 @@ namespace EAACP
                 aAError.Reset();
 
                 APGetCmd getCmd = new APGetCmd();
-                getCmd.script = "EAACP";
+                getCmd.script = "EAACP2";
                 getCmd.parameters = new APGetCmdParams();
                 getCmd.parameters.Cmd = 1;
                 getCmd.parameters.Option = 1;
@@ -368,7 +368,7 @@ namespace EAACP
             aAError.Reset();
 
             APGetCmd getCmd = new APGetCmd();
-            getCmd.script = "EAACP";
+            getCmd.script = "EAACP2";
             getCmd.parameters = new APGetCmdParams();
             getCmd.parameters.Cmd = Cmd;
             getCmd.parameters.Option = Option;
@@ -402,7 +402,7 @@ namespace EAACP
         private APGetCmdResult APGetObjects(int Cmd, int Option, string ObjType, string Params)
         {
             APGetCmd getCmd = new APGetCmd();
-            getCmd.script = "EAACP";
+            getCmd.script = "EAACP2";
             getCmd.parameters = new APGetCmdParams();
             getCmd.parameters.Cmd = Cmd;
             getCmd.parameters.Option = Option;
@@ -441,7 +441,6 @@ namespace EAACP
             if (aAError.ErrorNumber == 0 && apOut == null)
             {
                 Speak("No object selected");
-                //MessageBox.Show("No objects selected in AstroPlanner.", "EAACP", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -575,7 +574,7 @@ namespace EAACP
             if (Stellarium.Message!="exception" && obj!=null)
             {
                 APPutCmd aPPutCmd = new APPutCmd();
-                aPPutCmd.script = "EAACP";
+                aPPutCmd.script = "EAACP2";
                 aPPutCmd.parameters = new APPutCmdParams();
                 aPPutCmd.parameters.Cmd = 2;
                 aPPutCmd.parameters.Option = 1;
