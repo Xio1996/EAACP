@@ -67,6 +67,16 @@ namespace EAACP
             Properties.Settings.Default.StGraphicSize = txtGraphicSize.Text.Trim();
             Properties.Settings.Default.StGraphicColour = lblStGraphicColour.BackColor;
             Properties.Settings.Default.StGraphic = cbStGraphic.SelectedItem.ToString();
+            Properties.Settings.Default.StLabelPosition = cbLabelPosition.SelectedItem.ToString();
+
+            if (int.TryParse(txtLabelDistance.Text.Trim(), out int ld))
+            {
+                Properties.Settings.Default.StLabelDistance = ld;
+            }
+            else
+            {
+                Properties.Settings.Default.StLabelDistance = 12;
+            }
 
             Properties.Settings.Default.Save();
 
@@ -111,6 +121,8 @@ namespace EAACP
             txtGraphicSize.Text = Properties.Settings.Default.StGraphicSize;
             lblStGraphicColour.BackColor = Properties.Settings.Default.StGraphicColour;
             cbStGraphic.SelectedItem = Properties.Settings.Default.StGraphic;
+            cbLabelPosition.SelectedItem = Properties.Settings.Default.StLabelPosition;
+            txtLabelDistance.Text = Properties.Settings.Default.StLabelDistance.ToString(); 
 
             if (Mode == 1)
             {

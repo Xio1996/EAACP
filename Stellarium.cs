@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
@@ -37,6 +38,12 @@ namespace EAACP
             {"double star","Dbl"},{"star","Star"},{"supernova remnant","SNR"},{"asteroid","ext_Minor"},
             {"comet","ext_Comet"},{"planet","Planet"},{"moon","Planetary Moon"},{"artificial satellite","Artificial Satellite"}
         };
+
+        private void AddBasicAuthenticationHeader(string username, string password)
+        {
+            var byteArray = Encoding.ASCII.GetBytes($"{username}:{password}");
+            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+        }
 
         public string APTypeFromStellariumType(string ObjectType)
         {
@@ -71,13 +78,15 @@ namespace EAACP
             {
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
-
+                
+                AddBasicAuthenticationHeader("", EncryptionHelper.Decrypt(Properties.Settings.Default.StelPassword));
+                
                 HttpResponseMessage response = httpClient.PostAsync(url, content).GetAwaiter().GetResult();
                 result = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
 
                 TimeSpan ts = stopwatch.Elapsed;
                 string elapsedTime = String.Format("{0:00}:{1:00}.{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                sMsg = $"Request to {url} {elapsedTime}\r\n";
+                sMsg = $"Request to {url} Result={result} {elapsedTime}\r\n";
             }
             catch (HttpRequestException e)
             {
@@ -95,6 +104,8 @@ namespace EAACP
             {
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
+
+                AddBasicAuthenticationHeader("", EncryptionHelper.Decrypt(Properties.Settings.Default.StelPassword));
 
                 result = httpClient.GetStringAsync(url).GetAwaiter().GetResult();
 
@@ -549,8 +560,10 @@ namespace EAACP
                 string hexFontColor = $"#{FontColour.R:X2}{FontColour.G:X2}{FontColour.B:X2}";
                 FontColour = Properties.Settings.Default.StGraphicColour;
                 string hexGraphicColor = $"#{FontColour.R:X2}{FontColour.G:X2}{FontColour.B:X2}";
+                string labelSidePos = Properties.Settings.Default.StLabelPosition, labelDistance = Properties.Settings.Default.StLabelDistance.ToString();
 
-                string sCode = "\r\nMarkerMgr.deleteAllMarkers();LabelMgr.deleteAllLabels();\r\nfor (i=0;i<obj.length;i++){MarkerMgr.markerEquatorial(obj[i][1], obj[i][2],true,true,\"" + Properties.Settings.Default.StGraphic + "\",\"" + hexGraphicColor + "\"," + Properties.Settings.Default.StGraphicSize + ",true);LabelMgr.labelEquatorial(obj[i][0],obj[i][1], obj[i][2],true," + Properties.Settings.Default.StFontSize + ",\"" + hexFontColor + "\",\"E\",12);}";
+                //string sCode = "\r\nMarkerMgr.deleteAllMarkers();LabelMgr.deleteAllLabels();\r\nfor (i=0;i<obj.length;i++){MarkerMgr.markerEquatorial(obj[i][1], obj[i][2],true,true,\"" + Properties.Settings.Default.StGraphic + "\",\"" + hexGraphicColor + "\"," + Properties.Settings.Default.StGraphicSize + ",true);LabelMgr.labelEquatorial(obj[i][0],obj[i][1], obj[i][2],true," + Properties.Settings.Default.StFontSize + ",\"" + hexFontColor + "\",\"E\",12);}";
+                string sCode = "\r\nMarkerMgr.deleteAllMarkers();LabelMgr.deleteAllLabels();\r\nfor (i=0;i<obj.length;i++){MarkerMgr.markerEquatorial(obj[i][1], obj[i][2],true,true,\"" + Properties.Settings.Default.StGraphic + "\",\"" + hexGraphicColor + "\"," + Properties.Settings.Default.StGraphicSize + ",true);LabelMgr.labelEquatorial(obj[i][0],obj[i][1], obj[i][2],true," + Properties.Settings.Default.StFontSize + ",\"" + hexFontColor + "\",\"" + labelSidePos + "\"," + labelDistance + ");}";
 
                 File.WriteAllText(ScriptFolder + "\\drawobjects.ssc", varObjects + sCode);
 
@@ -560,13 +573,12 @@ namespace EAACP
             });
 
                 string result = PostRequest(sWebServiceURL, content);
-                sMsg = $"StelDrawObjects, {sMsg}";
+                sMsg = $"StelDrawObjects, {result}";
             }
             catch (Exception)
             {
                 sMsg = $"StelDrawObjects, {sMsg}";
             }
-
         }
 
         public void ClearObjects()
@@ -662,7 +674,8 @@ namespace EAACP
             string sWebServiceURL = $"http://{IPAddress}:{Port}/api/objects/info?format=json";
 
             result = GetRequest(sWebServiceURL);
-            sMsg = $"StelGetSelectedObjectInfo {sMsg}";
+            //sMsg = $"StelGetSelectedObjectInfo {sMsg}";
+            if (result == "exception" ) return null; //error
 
             if (result != "")
             {

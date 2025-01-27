@@ -59,8 +59,6 @@
             this.lblStFontColour = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.cbStGraphic = new System.Windows.Forms.ComboBox();
-            this.btnGraphicColour = new System.Windows.Forms.Button();
-            this.btnFontColour = new System.Windows.Forms.Button();
             this.txtGraphicSize = new System.Windows.Forms.TextBox();
             this.txtStFontSize = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
@@ -87,6 +85,10 @@
             this.rbPlanetarium = new System.Windows.Forms.RadioButton();
             this.rbAstroPlanner = new System.Windows.Forms.RadioButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.label14 = new System.Windows.Forms.Label();
+            this.cbLabelPosition = new System.Windows.Forms.ComboBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.txtLabelDistance = new System.Windows.Forms.TextBox();
             this.gbFilter.SuspendLayout();
             this.gbDisplay.SuspendLayout();
             this.gbOtherOptions.SuspendLayout();
@@ -362,12 +364,14 @@
             // 
             // gbDisplay
             // 
+            this.gbDisplay.Controls.Add(this.txtLabelDistance);
+            this.gbDisplay.Controls.Add(this.label15);
+            this.gbDisplay.Controls.Add(this.cbLabelPosition);
+            this.gbDisplay.Controls.Add(this.label14);
             this.gbDisplay.Controls.Add(this.lblStGraphicColour);
             this.gbDisplay.Controls.Add(this.lblStFontColour);
             this.gbDisplay.Controls.Add(this.label11);
             this.gbDisplay.Controls.Add(this.cbStGraphic);
-            this.gbDisplay.Controls.Add(this.btnGraphicColour);
-            this.gbDisplay.Controls.Add(this.btnFontColour);
             this.gbDisplay.Controls.Add(this.txtGraphicSize);
             this.gbDisplay.Controls.Add(this.txtStFontSize);
             this.gbDisplay.Controls.Add(this.label12);
@@ -398,7 +402,7 @@
             // 
             this.lblStGraphicColour.AutoSize = true;
             this.lblStGraphicColour.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblStGraphicColour.Location = new System.Drawing.Point(193, 159);
+            this.lblStGraphicColour.Location = new System.Drawing.Point(114, 159);
             this.lblStGraphicColour.Name = "lblStGraphicColour";
             this.lblStGraphicColour.Size = new System.Drawing.Size(18, 15);
             this.lblStGraphicColour.TabIndex = 27;
@@ -409,7 +413,7 @@
             // 
             this.lblStFontColour.AutoSize = true;
             this.lblStFontColour.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblStFontColour.Location = new System.Drawing.Point(193, 135);
+            this.lblStFontColour.Location = new System.Drawing.Point(114, 134);
             this.lblStFontColour.Name = "lblStFontColour";
             this.lblStFontColour.Size = new System.Drawing.Size(18, 15);
             this.lblStFontColour.TabIndex = 26;
@@ -419,7 +423,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(224, 159);
+            this.label11.Location = new System.Drawing.Point(137, 159);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(44, 13);
             this.label11.TabIndex = 25;
@@ -443,30 +447,10 @@
             "target",
             "gear",
             "disk"});
-            this.cbStGraphic.Location = new System.Drawing.Point(272, 155);
+            this.cbStGraphic.Location = new System.Drawing.Point(185, 155);
             this.cbStGraphic.Name = "cbStGraphic";
             this.cbStGraphic.Size = new System.Drawing.Size(107, 21);
             this.cbStGraphic.TabIndex = 24;
-            // 
-            // btnGraphicColour
-            // 
-            this.btnGraphicColour.Location = new System.Drawing.Point(114, 155);
-            this.btnGraphicColour.Name = "btnGraphicColour";
-            this.btnGraphicColour.Size = new System.Drawing.Size(75, 23);
-            this.btnGraphicColour.TabIndex = 23;
-            this.btnGraphicColour.Text = "Graphic Colour";
-            this.btnGraphicColour.UseVisualStyleBackColor = true;
-            this.btnGraphicColour.Click += new System.EventHandler(this.btnGraphicColour_Click);
-            // 
-            // btnFontColour
-            // 
-            this.btnFontColour.Location = new System.Drawing.Point(114, 130);
-            this.btnFontColour.Name = "btnFontColour";
-            this.btnFontColour.Size = new System.Drawing.Size(75, 23);
-            this.btnFontColour.TabIndex = 22;
-            this.btnFontColour.Text = "Font Colour";
-            this.btnFontColour.UseVisualStyleBackColor = true;
-            this.btnFontColour.Click += new System.EventHandler(this.btnFontColour_Click);
             // 
             // txtGraphicSize
             // 
@@ -474,15 +458,15 @@
             this.txtGraphicSize.Name = "txtGraphicSize";
             this.txtGraphicSize.Size = new System.Drawing.Size(35, 20);
             this.txtGraphicSize.TabIndex = 21;
-            this.txtGraphicSize.Text = "70.3";
+            this.txtGraphicSize.Text = "15";
             // 
             // txtStFontSize
             // 
-            this.txtStFontSize.Location = new System.Drawing.Point(75, 132);
+            this.txtStFontSize.Location = new System.Drawing.Point(75, 131);
             this.txtStFontSize.Name = "txtStFontSize";
             this.txtStFontSize.Size = new System.Drawing.Size(35, 20);
             this.txtStFontSize.TabIndex = 20;
-            this.txtStFontSize.Text = "70.3";
+            this.txtStFontSize.Text = "12";
             // 
             // label12
             // 
@@ -504,7 +488,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(7, 135);
+            this.label9.Location = new System.Drawing.Point(7, 134);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(51, 13);
             this.label9.TabIndex = 15;
@@ -718,6 +702,51 @@
             this.toolTip1.SetToolTip(this.rbAstroPlanner, "Search centre is selected AP object");
             this.rbAstroPlanner.UseVisualStyleBackColor = true;
             // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(136, 134);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(73, 13);
+            this.label14.TabIndex = 28;
+            this.label14.Text = "Label Position";
+            // 
+            // cbLabelPosition
+            // 
+            this.cbLabelPosition.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
+            this.cbLabelPosition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbLabelPosition.FormattingEnabled = true;
+            this.cbLabelPosition.Items.AddRange(new object[] {
+            "N",
+            "NE",
+            "E",
+            "SE",
+            "S",
+            "SW",
+            "W",
+            "NW"});
+            this.cbLabelPosition.Location = new System.Drawing.Point(211, 131);
+            this.cbLabelPosition.Name = "cbLabelPosition";
+            this.cbLabelPosition.Size = new System.Drawing.Size(41, 21);
+            this.cbLabelPosition.TabIndex = 29;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(259, 134);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(78, 13);
+            this.label15.TabIndex = 30;
+            this.label15.Text = "Label Distance";
+            // 
+            // txtLabelDistance
+            // 
+            this.txtLabelDistance.Location = new System.Drawing.Point(339, 131);
+            this.txtLabelDistance.Name = "txtLabelDistance";
+            this.txtLabelDistance.Size = new System.Drawing.Size(35, 20);
+            this.txtLabelDistance.TabIndex = 31;
+            this.txtLabelDistance.Text = "12";
+            // 
             // StelFOVOptions
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -797,8 +826,6 @@
         private System.Windows.Forms.TextBox txtGraphicSize;
         private System.Windows.Forms.TextBox txtStFontSize;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Button btnGraphicColour;
-        private System.Windows.Forms.Button btnFontColour;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ComboBox cbStGraphic;
         private System.Windows.Forms.Label lblStGraphicColour;
@@ -815,5 +842,9 @@
         private System.Windows.Forms.RadioButton rbPlanetarium;
         private System.Windows.Forms.RadioButton rbAstroPlanner;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ComboBox cbLabelPosition;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.TextBox txtLabelDistance;
+        private System.Windows.Forms.Label label15;
     }
 }

@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.Text;
 
 namespace EAACP
 {
@@ -267,7 +268,9 @@ namespace EAACP
             synthesizer.SetOutputToDefaultAudioDevice();
             synthesizer.Speak(Speech);
         }
-        
+
+
+
         private string GetRequest(string url)
         {
             string result = "";
@@ -295,7 +298,7 @@ namespace EAACP
         {
             string result = "";
 
-            string apWebServices = $"http://{Properties.Settings.Default.APIP}:{Properties.Settings.Default.APPort}?cmd=launch&auth={Properties.Settings.Default.Auth}&cmdformat=json&responseformat=json&payload=";
+            string apWebServices = $"http://{Properties.Settings.Default.APIP}:{Properties.Settings.Default.APPort}?cmd=launch&auth={EncryptionHelper.Decrypt(Properties.Settings.Default.Auth)}&cmdformat=json&responseformat=json&payload=";
             apWebServices += ScriptPayload;
 
             try
@@ -341,6 +344,11 @@ namespace EAACP
                 getCmd.parameters.Option = 1;
 
                 string sOut = APExecuteScript(Uri.EscapeDataString(JsonSerializer.Serialize<APGetCmd>(getCmd)));
+                // Corrects a bug in AP that does not close the JSON documents correctly (missing })
+                if (sOut.Contains("}]}") && !sOut.Contains("}]}}"))
+                {
+                    sOut += "}";
+                }
                 if (aAError.ErrorNumber != 0)
                 {
                     Speak(aAError.Message);
@@ -550,9 +558,14 @@ namespace EAACP
             }
             else 
             { 
+                if (Stellarium.Message.Contains("HTTP 401"))
+                {
+                    Speak(StellariumSpeak + " password incorrect or not set");
+                }
+
                 if (Stellarium.Message == "StConnection")
                 {
-                    Speak("Cannot connect to planetarium, is planetarium running and remote control configured?");
+                    Speak("Cannot connect to " + StellariumSpeak + "is remote control plugin configured?");
                 }
             }
         }
@@ -571,6 +584,12 @@ namespace EAACP
                 return;
             }
             APCmdObject obj = Stellarium.StellariumGetSelectedObjectInfo();
+            if (obj==null && Stellarium.Message.Contains("401"))
+            {
+                Speak(StellariumSpeak + " password incorrect or not set");
+                return;
+            }
+
             if (Stellarium.Message!="exception" && obj!=null)
             {
                 APPutCmd aPPutCmd = new APPutCmd();
@@ -731,10 +750,15 @@ namespace EAACP
 
                 APCmdObject ap = null;
                 ap = Stellarium.StellariumGetSelectedObjectInfo();
+                if (ap == null && Stellarium.Message.Contains("401"))
+                {
+                    Speak(StellariumSpeak + " password incorrect or not set");
+                    return;
+                }
 
                 if (ap == null)
                 {
-                    Speak("No object selected in Stellarium");
+                    Speak("No object selected in " + StellariumSpeak);
                     return;
                 }
 
@@ -748,6 +772,16 @@ namespace EAACP
                     Speak(AstroPlannerSpeak + " is not running");
                     return;
                 }
+
+                APCmdObject SelectedObject = APGetSelectedObject();
+                if (aAError.ErrorNumber == 0 && SelectedObject == null)
+                {
+                    Speak("No object selected in " + AstroPlannerSpeak);
+                    return;
+                }
+
+                SearchRA = SelectedObject.RA2000;
+                SearchDec = SelectedObject.Dec2000;
             }
 
             if (Properties.Settings.Default.sfDatasource == 0)
@@ -778,6 +812,10 @@ namespace EAACP
                 }
 
                 listOfSearchResults = Stellarium.DrawObjects(apOut);
+                if (Stellarium.Message.Contains("HTTP 401"))
+                {
+                    Speak(StellariumSpeak + " password incorrect or not set");
+                }
 
                 // Add search objects in SharpCap DSA format to the clipboard
                 if (Properties.Settings.Default.sSharpCapDSA)
@@ -798,6 +836,8 @@ namespace EAACP
                         frmOpt.EAACP = this;
                         frmOpt.TopMost = true;
                         frmOpt.Results = listOfSearchResults;
+                        frmOpt.CentreRA = SearchRA;
+                        frmOpt.CentreDec = SearchDec;
                         if (frmOpt.ShowDialog() == DialogResult.OK)
                         {
 
@@ -828,6 +868,11 @@ namespace EAACP
             }
 
             Stellarium.ClearObjects();
+
+            if (Stellarium.Message.Contains("HTTP 401"))
+            {
+                Speak(StellariumSpeak + " password incorrect or not set");
+            }
         }
 
         private void WriteObjectTextToFile(string objectText)

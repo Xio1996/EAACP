@@ -39,6 +39,7 @@
             this.txtAuthentication = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tabStel = new System.Windows.Forms.TabPage();
+            this.btnScriptFolder = new System.Windows.Forms.Button();
             this.txtStellariumScriptDirectory = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -53,7 +54,8 @@
             this.label7 = new System.Windows.Forms.Label();
             this.txtLat = new System.Windows.Forms.TextBox();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.btnScriptFolder = new System.Windows.Forms.Button();
+            this.txtStelPassword = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.tabConfig.SuspendLayout();
             this.tabAP.SuspendLayout();
             this.tabStel.SuspendLayout();
@@ -63,7 +65,7 @@
             // btnSave
             // 
             this.btnSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSave.Location = new System.Drawing.Point(149, 216);
+            this.btnSave.Location = new System.Drawing.Point(149, 277);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 2;
@@ -75,7 +77,7 @@
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCancel.Location = new System.Drawing.Point(231, 216);
+            this.btnCancel.Location = new System.Drawing.Point(231, 277);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 3;
@@ -91,7 +93,7 @@
             this.tabConfig.Location = new System.Drawing.Point(5, 5);
             this.tabConfig.Name = "tabConfig";
             this.tabConfig.SelectedIndex = 0;
-            this.tabConfig.Size = new System.Drawing.Size(305, 207);
+            this.tabConfig.Size = new System.Drawing.Size(305, 266);
             this.tabConfig.TabIndex = 8;
             // 
             // tabAP
@@ -169,6 +171,8 @@
             // 
             // tabStel
             // 
+            this.tabStel.Controls.Add(this.txtStelPassword);
+            this.tabStel.Controls.Add(this.label10);
             this.tabStel.Controls.Add(this.btnScriptFolder);
             this.tabStel.Controls.Add(this.txtStellariumScriptDirectory);
             this.tabStel.Controls.Add(this.label6);
@@ -179,15 +183,25 @@
             this.tabStel.Location = new System.Drawing.Point(4, 22);
             this.tabStel.Name = "tabStel";
             this.tabStel.Padding = new System.Windows.Forms.Padding(3);
-            this.tabStel.Size = new System.Drawing.Size(297, 181);
+            this.tabStel.Size = new System.Drawing.Size(297, 240);
             this.tabStel.TabIndex = 1;
             this.tabStel.Text = "Stellarium";
             this.tabStel.UseVisualStyleBackColor = true;
             // 
+            // btnScriptFolder
+            // 
+            this.btnScriptFolder.Location = new System.Drawing.Point(244, 201);
+            this.btnScriptFolder.Name = "btnScriptFolder";
+            this.btnScriptFolder.Size = new System.Drawing.Size(44, 23);
+            this.btnScriptFolder.TabIndex = 20;
+            this.btnScriptFolder.Text = "...";
+            this.btnScriptFolder.UseVisualStyleBackColor = true;
+            this.btnScriptFolder.Click += new System.EventHandler(this.btnScriptFolder_Click);
+            // 
             // txtStellariumScriptDirectory
             // 
             this.txtStellariumScriptDirectory.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtStellariumScriptDirectory.Location = new System.Drawing.Point(12, 147);
+            this.txtStellariumScriptDirectory.Location = new System.Drawing.Point(12, 201);
             this.txtStellariumScriptDirectory.MaxLength = 1000;
             this.txtStellariumScriptDirectory.Name = "txtStellariumScriptDirectory";
             this.txtStellariumScriptDirectory.Size = new System.Drawing.Size(226, 24);
@@ -197,7 +211,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(12, 124);
+            this.label6.Location = new System.Drawing.Point(12, 178);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(148, 15);
             this.label6.TabIndex = 18;
@@ -207,7 +221,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(9, 67);
+            this.label4.Location = new System.Drawing.Point(9, 121);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(167, 15);
             this.label4.TabIndex = 17;
@@ -216,7 +230,7 @@
             // txtStelPort
             // 
             this.txtStelPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtStelPort.Location = new System.Drawing.Point(9, 89);
+            this.txtStelPort.Location = new System.Drawing.Point(9, 143);
             this.txtStelPort.MaxLength = 31;
             this.txtStelPort.Name = "txtStelPort";
             this.txtStelPort.Size = new System.Drawing.Size(73, 24);
@@ -225,7 +239,7 @@
             // txtStelIP
             // 
             this.txtStelIP.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtStelIP.Location = new System.Drawing.Point(9, 35);
+            this.txtStelIP.Location = new System.Drawing.Point(9, 89);
             this.txtStelIP.MaxLength = 31;
             this.txtStelIP.Name = "txtStelIP";
             this.txtStelIP.Size = new System.Drawing.Size(279, 24);
@@ -235,7 +249,7 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(9, 12);
+            this.label5.Location = new System.Drawing.Point(9, 66);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(237, 15);
             this.label5.TabIndex = 14;
@@ -314,15 +328,24 @@
             this.txtLat.Size = new System.Drawing.Size(83, 24);
             this.txtLat.TabIndex = 18;
             // 
-            // btnScriptFolder
+            // txtStelPassword
             // 
-            this.btnScriptFolder.Location = new System.Drawing.Point(244, 147);
-            this.btnScriptFolder.Name = "btnScriptFolder";
-            this.btnScriptFolder.Size = new System.Drawing.Size(44, 23);
-            this.btnScriptFolder.TabIndex = 20;
-            this.btnScriptFolder.Text = "...";
-            this.btnScriptFolder.UseVisualStyleBackColor = true;
-            this.btnScriptFolder.Click += new System.EventHandler(this.btnScriptFolder_Click);
+            this.txtStelPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtStelPassword.Location = new System.Drawing.Point(9, 30);
+            this.txtStelPassword.MaxLength = 31;
+            this.txtStelPassword.Name = "txtStelPassword";
+            this.txtStelPassword.Size = new System.Drawing.Size(279, 24);
+            this.txtStelPassword.TabIndex = 22;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(9, 7);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(120, 15);
+            this.label10.TabIndex = 21;
+            this.label10.Text = "Stellarium Password";
             // 
             // Config
             // 
@@ -330,7 +353,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(313, 245);
+            this.ClientSize = new System.Drawing.Size(313, 306);
             this.Controls.Add(this.tabConfig);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
@@ -382,5 +405,7 @@
         private System.Windows.Forms.TextBox txtElev;
         private System.Windows.Forms.Button btnScriptFolder;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.TextBox txtStelPassword;
+        private System.Windows.Forms.Label label10;
     }
 }

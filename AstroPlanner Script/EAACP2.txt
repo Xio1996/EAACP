@@ -518,7 +518,7 @@ sub main()
 		break
 	case 3
 		Debug("Cmd: QuickObservation")
-		QuickObservation(iOption,oCmd.Lookup("Notes",""))
+		QuickObservation(iOption,oCmd.Lookup("Params",""))
 		break
 	case 5
 		Debug("Cmd: Search")

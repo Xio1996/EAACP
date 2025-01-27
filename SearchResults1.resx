@@ -138,7 +138,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;dgvSearchResults.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>7</value>
   </data>
   <data name="btnCancel.Location" type="System.Drawing.Point, System.Drawing">
     <value>908, 358</value>
@@ -162,10 +162,10 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;btnCancel.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>6</value>
   </data>
   <data name="btnAddToAP.Location" type="System.Drawing.Point, System.Drawing">
-    <value>757, 358</value>
+    <value>677, 358</value>
   </data>
   <data name="btnAddToAP.Size" type="System.Drawing.Size, System.Drawing">
     <value>136, 23</value>
@@ -186,14 +186,14 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;btnAddToAP.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>5</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="btnDrawSelection.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="btnDrawSelection.Location" type="System.Drawing.Point, System.Drawing">
-    <value>114, 358</value>
+    <value>211, 358</value>
   </data>
   <data name="btnDrawSelection.Size" type="System.Drawing.Size, System.Drawing">
     <value>93, 23</value>
@@ -214,13 +214,13 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;btnDrawSelection.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>4</value>
   </data>
   <data name="btnPlotAll.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="btnPlotAll.Location" type="System.Drawing.Point, System.Drawing">
-    <value>214, 358</value>
+    <value>111, 358</value>
   </data>
   <data name="btnPlotAll.Size" type="System.Drawing.Size, System.Drawing">
     <value>93, 23</value>
@@ -241,7 +241,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;btnPlotAll.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>3</value>
   </data>
   <data name="btnOptions.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -268,6 +268,60 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;btnOptions.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="btnRecentre.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="btnRecentre.Location" type="System.Drawing.Point, System.Drawing">
+    <value>384, 358</value>
+  </data>
+  <data name="btnRecentre.Size" type="System.Drawing.Size, System.Drawing">
+    <value>93, 23</value>
+  </data>
+  <data name="btnRecentre.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="btnRecentre.Text" xml:space="preserve">
+    <value>Search Centre</value>
+  </data>
+  <data name="&gt;&gt;btnRecentre.Name" xml:space="preserve">
+    <value>btnRecentre</value>
+  </data>
+  <data name="&gt;&gt;btnRecentre.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;btnRecentre.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;btnRecentre.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="btnCentreSelected.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="btnCentreSelected.Location" type="System.Drawing.Point, System.Drawing">
+    <value>483, 358</value>
+  </data>
+  <data name="btnCentreSelected.Size" type="System.Drawing.Size, System.Drawing">
+    <value>93, 23</value>
+  </data>
+  <data name="btnCentreSelected.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="btnCentreSelected.Text" xml:space="preserve">
+    <value>Selected Centre</value>
+  </data>
+  <data name="&gt;&gt;btnCentreSelected.Name" xml:space="preserve">
+    <value>btnCentreSelected</value>
+  </data>
+  <data name="&gt;&gt;btnCentreSelected.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;btnCentreSelected.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;btnCentreSelected.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">

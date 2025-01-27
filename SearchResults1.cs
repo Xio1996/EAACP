@@ -43,7 +43,8 @@ namespace EAACP
             }
         }
 
-
+        public double CentreRA;
+        public double CentreDec;
 
         private void SearchResults_Load(object sender, EventArgs e)
         {
@@ -231,6 +232,21 @@ namespace EAACP
                 {
 
                 }
+            }
+        }
+
+        private void btnRecentre_Click(object sender, EventArgs e)
+        {
+            Stellarium.SyncStellariumToPosition(CentreRA, CentreDec);
+        }
+
+        private void btnCentreSelected_Click(object sender, EventArgs e)
+        {
+            if (dgvSearchResults.SelectedRows.Count>0)
+            {
+                double RA = double.Parse(dgvSearchResults.SelectedRows[0].Cells["dRA"].Value.ToString());
+                double Dec = double.Parse(dgvSearchResults.SelectedRows[0].Cells["dDec"].Value.ToString());
+                Stellarium.SyncStellariumToPosition(RA, Dec);
             }
         }
     }

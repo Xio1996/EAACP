@@ -9,10 +9,10 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="frmWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">90</Value>
+      <Value Profile="(Default)">170</Value>
     </Setting>
     <Setting Name="frmHeight" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">285</Value>
+      <Value Profile="(Default)">380</Value>
     </Setting>
     <Setting Name="Auth" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -21,7 +21,7 @@
       <Value Profile="(Default)">-1</Value>
     </Setting>
     <Setting Name="QOYPos" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">-1</Value>
     </Setting>
     <Setting Name="APIP" Type="System.String" Scope="User">
       <Value Profile="(Default)">localhost</Value>
@@ -69,7 +69,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="sfMagnitude" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">17</Value>
     </Setting>
     <Setting Name="sfDistMin" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -102,16 +102,16 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="StFontSize" Type="System.String" Scope="User">
-      <Value Profile="(Default)">13</Value>
+      <Value Profile="(Default)">12</Value>
     </Setting>
     <Setting Name="StFontColour" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">Yellow</Value>
     </Setting>
     <Setting Name="StGraphicSize" Type="System.String" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">15</Value>
     </Setting>
     <Setting Name="StGraphicColour" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">Yellow</Value>
     </Setting>
     <Setting Name="StGraphic" Type="System.String" Scope="User">
       <Value Profile="(Default)">circle</Value>
@@ -126,7 +126,7 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="SearchRadius" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">2</Value>
+      <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="SiteLng" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -153,22 +153,22 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="sfNoMag" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="controlOrder" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="objTxtID" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="objTxtName" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="objTxtType" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="objTxtMagnitude" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="objTxtFilePath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -180,7 +180,16 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="objTxtConstellation" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="StelPassword" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="StLabelPosition" Type="System.String" Scope="User">
+      <Value Profile="(Default)">W</Value>
+    </Setting>
+    <Setting Name="StLabelDistance" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">15</Value>
     </Setting>
   </Settings>
 </SettingsFile>

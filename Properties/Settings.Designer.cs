@@ -49,7 +49,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("90")]
+        [global::System.Configuration.DefaultSettingValueAttribute("170")]
         public int frmWidth {
             get {
                 return ((int)(this["frmWidth"]));
@@ -61,7 +61,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("285")]
+        [global::System.Configuration.DefaultSettingValueAttribute("380")]
         public int frmHeight {
             get {
                 return ((int)(this["frmHeight"]));
@@ -97,7 +97,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
         public int QOYPos {
             get {
                 return ((int)(this["QOYPos"]));
@@ -289,7 +289,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("17")]
         public string sfMagnitude {
             get {
                 return ((string)(this["sfMagnitude"]));
@@ -421,7 +421,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("13")]
+        [global::System.Configuration.DefaultSettingValueAttribute("12")]
         public string StFontSize {
             get {
                 return ((string)(this["StFontSize"]));
@@ -433,6 +433,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Yellow")]
         public global::System.Drawing.Color StFontColour {
             get {
                 return ((global::System.Drawing.Color)(this["StFontColour"]));
@@ -444,7 +445,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        [global::System.Configuration.DefaultSettingValueAttribute("15")]
         public string StGraphicSize {
             get {
                 return ((string)(this["StGraphicSize"]));
@@ -456,6 +457,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Yellow")]
         public global::System.Drawing.Color StGraphicColour {
             get {
                 return ((global::System.Drawing.Color)(this["StGraphicColour"]));
@@ -515,7 +517,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
         public double SearchRadius {
             get {
                 return ((double)(this["SearchRadius"]));
@@ -623,7 +625,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool sfNoMag {
             get {
                 return ((bool)(this["sfNoMag"]));
@@ -646,7 +648,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool objTxtID {
             get {
                 return ((bool)(this["objTxtID"]));
@@ -658,7 +660,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool objTxtName {
             get {
                 return ((bool)(this["objTxtName"]));
@@ -670,7 +672,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool objTxtType {
             get {
                 return ((bool)(this["objTxtType"]));
@@ -682,7 +684,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool objTxtMagnitude {
             get {
                 return ((bool)(this["objTxtMagnitude"]));
@@ -730,13 +732,49 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool objTxtConstellation {
             get {
                 return ((bool)(this["objTxtConstellation"]));
             }
             set {
                 this["objTxtConstellation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string StelPassword {
+            get {
+                return ((string)(this["StelPassword"]));
+            }
+            set {
+                this["StelPassword"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("W")]
+        public string StLabelPosition {
+            get {
+                return ((string)(this["StLabelPosition"]));
+            }
+            set {
+                this["StLabelPosition"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("15")]
+        public int StLabelDistance {
+            get {
+                return ((int)(this["StLabelDistance"]));
+            }
+            set {
+                this["StLabelDistance"] = value;
             }
         }
     }

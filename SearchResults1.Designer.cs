@@ -35,6 +35,8 @@
             this.btnDrawSelection = new System.Windows.Forms.Button();
             this.btnPlotAll = new System.Windows.Forms.Button();
             this.btnOptions = new System.Windows.Forms.Button();
+            this.btnRecentre = new System.Windows.Forms.Button();
+            this.btnCentreSelected = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSearchResults)).BeginInit();
             this.SuspendLayout();
             // 
@@ -84,10 +86,26 @@
             this.btnOptions.UseVisualStyleBackColor = true;
             this.btnOptions.Click += new System.EventHandler(this.btnOptions_Click);
             // 
+            // btnRecentre
+            // 
+            resources.ApplyResources(this.btnRecentre, "btnRecentre");
+            this.btnRecentre.Name = "btnRecentre";
+            this.btnRecentre.UseVisualStyleBackColor = true;
+            this.btnRecentre.Click += new System.EventHandler(this.btnRecentre_Click);
+            // 
+            // btnCentreSelected
+            // 
+            resources.ApplyResources(this.btnCentreSelected, "btnCentreSelected");
+            this.btnCentreSelected.Name = "btnCentreSelected";
+            this.btnCentreSelected.UseVisualStyleBackColor = true;
+            this.btnCentreSelected.Click += new System.EventHandler(this.btnCentreSelected_Click);
+            // 
             // SearchResults
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.btnCentreSelected);
+            this.Controls.Add(this.btnRecentre);
             this.Controls.Add(this.btnOptions);
             this.Controls.Add(this.btnPlotAll);
             this.Controls.Add(this.btnDrawSelection);
@@ -114,5 +132,7 @@
         private System.Windows.Forms.Button btnDrawSelection;
         private System.Windows.Forms.Button btnPlotAll;
         private System.Windows.Forms.Button btnOptions;
+        private System.Windows.Forms.Button btnRecentre;
+        private System.Windows.Forms.Button btnCentreSelected;
     }
 }
