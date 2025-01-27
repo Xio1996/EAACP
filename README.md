@@ -6,7 +6,7 @@
 
 <b>Stellarium Sync</b>: This moves the Stellarium view to the selected object in AstroPlanner. The size (or zoom) of Stellarium’s field of view is not altered. 
 
-<b>SharpCapDSA</b>: Select an object in AstroPlanner and pressing this button will place that objects SharpCap DSA format onto the clipboard. If the AstroPlanner object is a comet or asteroid, then the exact coordinates will be retrieved from JPL. Paste the entries into SharpCap, using SharpCap’s Deep Sky Annotation dialog.
+<b>SharpCapDSA</b>: Select an object in AstroPlanner and pressing this button will place that objects SharpCap DSA format onto the clipboard. Paste the entries into SharpCap, using SharpCap’s Deep Sky Annotation dialog.
 
 <b>Add to AP</b>: This adds the currently selected object in Stellarium into the AstroPlanner plan. I have noticed it can take time for the objects ID to appear in AstroPlanner. Usually, clicking onto another object and then clicking outside AstroPlanner forces a refresh. I’m afraid this is an AstroPlanner feature 😊. 
 
