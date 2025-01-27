@@ -262,7 +262,7 @@ namespace EAACP
             e.Effect = DragDropEffects.Move;
         }
 
-        private void Speak(string Speech)
+        public void Speak(string Speech)
         {
             var synthesizer = new SpeechSynthesizer();
             synthesizer.SetOutputToDefaultAudioDevice();

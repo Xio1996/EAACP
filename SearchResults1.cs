@@ -189,6 +189,12 @@ namespace EAACP
                 return;
             }
 
+            if (dgvSearchResults.SelectedRows.Count == 0)
+            {
+                EAACP.Speak("No objects selected");
+                return;
+            }
+
             foreach (DataGridViewRow row in dgvSearchResults.SelectedRows)
             {
                 APCmdObject obj = new APCmdObject();
@@ -220,6 +226,8 @@ namespace EAACP
             aPPutCmd.parameters.Objects = apObjects;
 
             string sOut = EAACP.APExecuteScript(Uri.EscapeDataString(JsonSerializer.Serialize<APPutCmd>(aPPutCmd)));
+
+             EAACP.Speak(dgvSearchResults.SelectedRows.Count.ToString() + " Objects added");
         }
 
         private void btnOptions_Click(object sender, EventArgs e)
