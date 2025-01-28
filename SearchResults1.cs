@@ -21,6 +21,7 @@ namespace EAACP
         DataTable dt = new DataTable();
         DataTable dtUniqueCatalogues = new DataTable();
         int totalResults = 0;
+        string stellariumDSOFilter;
 
         public frmCP EAACP;
 
@@ -47,10 +48,13 @@ namespace EAACP
 
         public double CentreRA;
         public double CentreDec;
+        public string CentreID;
 
         private void SearchResults_Load(object sender, EventArgs e)
         {
             Stellarium.ScriptFolder = Properties.Settings.Default.StScriptFolder;
+
+            stellariumDSOFilter = Stellarium.GetStelProperty("NebulaMgr.catalogFilters");
 
             if (ResultsList != null || ResultsTable != null)
             {
@@ -129,8 +133,6 @@ namespace EAACP
 
                 totalResults = dt.Rows.Count;
                 UpdateSearchInfo(totalResults);
-
-
             }
 
             
@@ -278,7 +280,7 @@ namespace EAACP
 
         private void btnRecentre_Click(object sender, EventArgs e)
         {
-            Stellarium.SyncStellariumToPosition(CentreRA, CentreDec);
+            Stellarium.SyncStellariumToAPObject(CentreID, CentreRA.ToString(), CentreDec.ToString(), "");
         }
 
         private void btnCentreSelected_Click(object sender, EventArgs e)
@@ -310,6 +312,32 @@ namespace EAACP
                 UpdateSearchInfo(dv.ToTable().Rows.Count);
             }
 
+        }
+
+        private void btnAllCats_Click(object sender, EventArgs e)
+        {
+            Stellarium.SetStelProperty("NebulaMgr.catalogFilters", "0");
+        }
+
+        private void btnDSOStandard_Click(object sender, EventArgs e)
+        {
+            Stellarium.SetStelProperty("NebulaMgr.catalogFilters", "7");
+        }
+
+        private void btnDSOAll_Click(object sender, EventArgs e)
+        {
+            Stellarium.SetStelProperty("NebulaMgr.catalogFilters", "255852279");
+        }
+
+        private void btnClearPlot_Click(object sender, EventArgs e)
+        {
+            Stellarium.ClearObjects();
+            UpdateSearchInfo(0);
+        }
+
+        private void SearchResults_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Stellarium.SetStelProperty("NebulaMgr.catalogFilters", stellariumDSOFilter);
         }
     }
 }

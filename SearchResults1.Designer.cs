@@ -39,6 +39,11 @@
             this.btnCentreSelected = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.cbCataloguesFilter = new System.Windows.Forms.ComboBox();
+            this.btnDSOOff = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.btnDSOStandard = new System.Windows.Forms.Button();
+            this.btnDSOAll = new System.Windows.Forms.Button();
+            this.btnClearPlot = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSearchResults)).BeginInit();
             this.SuspendLayout();
             // 
@@ -115,10 +120,48 @@
             this.cbCataloguesFilter.Name = "cbCataloguesFilter";
             this.cbCataloguesFilter.SelectedIndexChanged += new System.EventHandler(this.cbCataloguesFilter_SelectedIndexChanged);
             // 
+            // btnDSOOff
+            // 
+            resources.ApplyResources(this.btnDSOOff, "btnDSOOff");
+            this.btnDSOOff.Name = "btnDSOOff";
+            this.btnDSOOff.UseVisualStyleBackColor = true;
+            this.btnDSOOff.Click += new System.EventHandler(this.btnAllCats_Click);
+            // 
+            // label2
+            // 
+            resources.ApplyResources(this.label2, "label2");
+            this.label2.Name = "label2";
+            // 
+            // btnDSOStandard
+            // 
+            resources.ApplyResources(this.btnDSOStandard, "btnDSOStandard");
+            this.btnDSOStandard.Name = "btnDSOStandard";
+            this.btnDSOStandard.UseVisualStyleBackColor = true;
+            this.btnDSOStandard.Click += new System.EventHandler(this.btnDSOStandard_Click);
+            // 
+            // btnDSOAll
+            // 
+            resources.ApplyResources(this.btnDSOAll, "btnDSOAll");
+            this.btnDSOAll.Name = "btnDSOAll";
+            this.btnDSOAll.UseVisualStyleBackColor = true;
+            this.btnDSOAll.Click += new System.EventHandler(this.btnDSOAll_Click);
+            // 
+            // btnClearPlot
+            // 
+            resources.ApplyResources(this.btnClearPlot, "btnClearPlot");
+            this.btnClearPlot.Name = "btnClearPlot";
+            this.btnClearPlot.UseVisualStyleBackColor = true;
+            this.btnClearPlot.Click += new System.EventHandler(this.btnClearPlot_Click);
+            // 
             // SearchResults
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.btnClearPlot);
+            this.Controls.Add(this.btnDSOAll);
+            this.Controls.Add(this.btnDSOStandard);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.btnDSOOff);
             this.Controls.Add(this.cbCataloguesFilter);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnCentreSelected);
@@ -135,6 +178,7 @@
             this.Name = "SearchResults";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SearchResults_FormClosing);
             this.Load += new System.EventHandler(this.SearchResults_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvSearchResults)).EndInit();
             this.ResumeLayout(false);
@@ -154,5 +198,10 @@
         private System.Windows.Forms.Button btnCentreSelected;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox cbCataloguesFilter;
+        private System.Windows.Forms.Button btnDSOOff;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button btnDSOStandard;
+        private System.Windows.Forms.Button btnDSOAll;
+        private System.Windows.Forms.Button btnClearPlot;
     }
 }

@@ -533,7 +533,6 @@ namespace EAACP
             if (aAError.ErrorNumber == 0 && SelectedObject == null)
             {
                 Speak("No object selected");
-                //MessageBox.Show("No object selected in AstroPlanner.", "EAACtrl", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -740,6 +739,8 @@ namespace EAACP
         private void btnSearch_Click(object sender, EventArgs e)
         {
             double SearchRA = 999, SearchDec = 999;
+            string SearchID = "";
+
             if (Properties.Settings.Default.sfPlanetarium)
             {
                 if (!IsStellariumRunning())
@@ -762,6 +763,7 @@ namespace EAACP
                     return;
                 }
 
+                SearchID = ap.ID;
                 SearchRA = ap.RA2000;
                 SearchDec = ap.Dec2000;
             }
@@ -780,6 +782,7 @@ namespace EAACP
                     return;
                 }
 
+                SearchID = SelectedObject.ID;
                 SearchRA = SelectedObject.RA2000;
                 SearchDec = SelectedObject.Dec2000;
             }
@@ -795,7 +798,7 @@ namespace EAACP
                 if (apOut == null)
                 {
                     Speak("No search results");
-                    //MessageBox.Show("No objects selected in AstroPlanner.", "EAACtrl", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    
                     return;
                 }
 
@@ -836,6 +839,7 @@ namespace EAACP
                         frmOpt.EAACP = this;
                         frmOpt.TopMost = true;
                         frmOpt.Results = listOfSearchResults;
+                        frmOpt.CentreID = SearchID;
                         frmOpt.CentreRA = SearchRA;
                         frmOpt.CentreDec = SearchDec;
                         if (frmOpt.ShowDialog() == DialogResult.OK)

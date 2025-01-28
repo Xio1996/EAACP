@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using System.Text.Json;
 
 namespace EAACP
 {
@@ -136,6 +137,33 @@ namespace EAACP
 
             result = PostRequest(sWebServiceURL, content);
             sMsg = $"StelAction {sName}, {sMsg}";
+            return result;
+        }
+
+        public string GetStelProperty(string sName)
+        {
+            string sWebServiceURL = $"http://{IPAddress}:{Port}/api/stelproperty/list";
+            string result = GetRequest(sWebServiceURL);
+
+            if (result != "exception")
+            {
+                JsonDocument jsonStellariumProperties = JsonDocument.Parse(result);
+                if (jsonStellariumProperties.RootElement.TryGetProperty(sName, out JsonElement property))
+                {
+                    property.TryGetProperty("value", out JsonElement value);
+
+                    if (value.ValueKind == JsonValueKind.Number)
+                    {
+                        return value.GetDouble().ToString();
+                    }
+                    else
+                    {
+                        return value.GetString();
+                    }
+                }
+            }
+
+            sMsg = $"StelProp {sName}, {sMsg}";
             return result;
         }
 
