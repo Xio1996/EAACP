@@ -2,15 +2,13 @@
 <p>A small application to integrate primarily AstroPlanner and Stellarium (also SharpCap and tools such as OBS). The application provides a simple user interface to execute multiple functions via the scripting interfaces of AstroPlanner and Stellarium.</p>
 <p>This is a work in progress!</p>
 
-<b>Quick Observation</b>: Displays a dialog allowing an observation to be added to one or more selected objects in a plan or to all objects associated with an object in the plan.
+<b>Quick Observation</b>: Displays a dialog allowing an observation to be added to one or more selected AstroPlanner  objects in a plan or to all objects associated with an object in the plan.
 
 <b>Stellarium Sync</b>: This moves the Stellarium view to the selected object in AstroPlanner. The size (or zoom) of Stellarium’s field of view is not altered. 
 
 <b>SharpCapDSA</b>: Select an object in AstroPlanner and pressing this button will place that objects SharpCap DSA format onto the clipboard. Paste the entries into SharpCap, using SharpCap’s Deep Sky Annotation dialog.
 
 <b>Add to AP</b>: This adds the currently selected object in Stellarium into the AstroPlanner plan. I have noticed it can take time for the objects ID to appear in AstroPlanner. Usually, clicking onto another object and then clicking outside AstroPlanner forces a refresh. I’m afraid this is an AstroPlanner feature 😊. 
-
-<b>Object Text</b>: This writes information from the currently selected object in AstroPlanner to a file. The 'Opt' or option button allows the user to specify what object info is available, a maximum number of character before the text is truncated, the filepath for the file and a manual entry field for messages. This is useful if you use OBS and want to display the current target information.
 
 <b>Object Text</b>: This writes information from the currently selected object in AstroPlanner to a file. The 'Opt' or option button allows the user to specify what object info is available, a maximum number of character before the text is truncated, the filepath for the file and a manual entry field for messages. This is useful if you use OBS and want to display the current target information.
 
