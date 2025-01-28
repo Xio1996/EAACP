@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -439,7 +440,6 @@ namespace EAACP
                 bFilterOnDistance = true;
             }
 
-
             foreach (DataRow row in varObjects.Rows)
             {
                 if (bFilterOnDistance)
@@ -548,6 +548,26 @@ namespace EAACP
             sOut = sOut.Substring(0, sOut.Length - 1) + "];";
 
             DrawObjects(sOut);
+        }
+
+        public DataTable UniqueCataloguesInSearchResults(DataTable searchResults)
+        {
+            var uniqueCatalogues = searchResults.AsEnumerable()
+                .Select(row => new { Catalogue = row.Field<string>("Catalogue") })
+                .Distinct()
+                .OrderBy(row => row.Catalogue);
+
+            DataTable resultTable = new DataTable();
+            resultTable.Columns.Add("Catalogue", typeof(string));
+
+            resultTable.Rows.Add("All Catalogues");
+
+            foreach (var row in uniqueCatalogues)
+            {
+                resultTable.Rows.Add(row.Catalogue);
+            }
+
+            return resultTable;
         }
 
         public void DrawObjects(string varObjects)

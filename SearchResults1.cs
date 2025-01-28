@@ -19,6 +19,8 @@ namespace EAACP
         private List<string[]> ResultsList = null;
         private DataTable ResultsTable = null;
         DataTable dt = new DataTable();
+        DataTable dtUniqueCatalogues = new DataTable();
+        int totalResults = 0;
 
         public frmCP EAACP;
 
@@ -107,6 +109,15 @@ namespace EAACP
                     }
                 }
 
+                // Fetch and display list of unique catalogues
+                cbCataloguesFilter.SelectedIndexChanged -= cbCataloguesFilter_SelectedIndexChanged;
+                
+                dtUniqueCatalogues = Stellarium.UniqueCataloguesInSearchResults(dt);
+                cbCataloguesFilter.DataSource = dtUniqueCatalogues;
+                cbCataloguesFilter.DisplayMember = "Catalogue";
+                
+                cbCataloguesFilter.SelectedIndexChanged += cbCataloguesFilter_SelectedIndexChanged;
+
                 dgvSearchResults.DataSource = dt;
                 dgvSearchResults.Columns["dRA"].Visible = false;
                 dgvSearchResults.Columns["dDec"].Visible = false;
@@ -116,8 +127,18 @@ namespace EAACP
 
                 dgvSearchResults.Sort(dgvSearchResults.Columns["Magnitude"], System.ComponentModel.ListSortDirection.Ascending);
 
-                this.Text = "Search Results (" + dt.Rows.Count.ToString() + ")";
+                totalResults = dt.Rows.Count;
+                UpdateSearchInfo(totalResults);
+
+
             }
+
+            
+        }
+
+        private void UpdateSearchInfo(int viewCount)
+        {
+            this.Text = $"Search Results: {totalResults} objects, Current View: {viewCount} objects";
         }
 
         private void btnDrawSelection_Click(object sender, EventArgs e)
@@ -170,13 +191,25 @@ namespace EAACP
 
                 Selected.Rows.Add(SelectedRow);
             }
-
+            
             Stellarium.DrawObjects(Selected);
+
+            UpdateSearchInfo(dgvSearchResults.SelectedRows.Count);
         }
 
         private void btnPlotAll_Click(object sender, EventArgs e)
         {
+
+            // Stop the catalogues filter from firing
+            cbCataloguesFilter.SelectedIndexChanged -= cbCataloguesFilter_SelectedIndexChanged;
+            cbCataloguesFilter.SelectedIndex = 0;
+            cbCataloguesFilter.SelectedIndexChanged += cbCataloguesFilter_SelectedIndexChanged;
+
+            // Remove any filtering
+            dt.DefaultView.RowFilter = "";
             Stellarium.DrawObjects(dt);
+
+            UpdateSearchInfo(totalResults);
         }
 
         private void btnAddToAP_Click(object sender, EventArgs e)
@@ -256,6 +289,27 @@ namespace EAACP
                 double Dec = double.Parse(dgvSearchResults.SelectedRows[0].Cells["dDec"].Value.ToString());
                 Stellarium.SyncStellariumToPosition(RA, Dec);
             }
+        }
+
+        private void cbCataloguesFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string apCatalogue = cbCataloguesFilter.Text;
+            if (apCatalogue == "All Catalogues")
+            {
+                dt.DefaultView.RowFilter = "";
+                Stellarium.DrawObjects(dt);
+                UpdateSearchInfo(totalResults);
+            }
+            else
+            {
+                DataView dv = dt.DefaultView;
+                dv.RowFilter = "Catalogue = '" + apCatalogue + "'";
+
+                Stellarium.DrawObjects(dv.ToTable());
+
+                UpdateSearchInfo(dv.ToTable().Rows.Count);
+            }
+
         }
     }
 }

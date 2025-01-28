@@ -37,6 +37,8 @@
             this.btnOptions = new System.Windows.Forms.Button();
             this.btnRecentre = new System.Windows.Forms.Button();
             this.btnCentreSelected = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.cbCataloguesFilter = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSearchResults)).BeginInit();
             this.SuspendLayout();
             // 
@@ -100,10 +102,25 @@
             this.btnCentreSelected.UseVisualStyleBackColor = true;
             this.btnCentreSelected.Click += new System.EventHandler(this.btnCentreSelected_Click);
             // 
+            // label1
+            // 
+            resources.ApplyResources(this.label1, "label1");
+            this.label1.Name = "label1";
+            // 
+            // cbCataloguesFilter
+            // 
+            this.cbCataloguesFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbCataloguesFilter.FormattingEnabled = true;
+            resources.ApplyResources(this.cbCataloguesFilter, "cbCataloguesFilter");
+            this.cbCataloguesFilter.Name = "cbCataloguesFilter";
+            this.cbCataloguesFilter.SelectedIndexChanged += new System.EventHandler(this.cbCataloguesFilter_SelectedIndexChanged);
+            // 
             // SearchResults
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cbCataloguesFilter);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.btnCentreSelected);
             this.Controls.Add(this.btnRecentre);
             this.Controls.Add(this.btnOptions);
@@ -121,6 +138,7 @@
             this.Load += new System.EventHandler(this.SearchResults_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvSearchResults)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -134,5 +152,7 @@
         private System.Windows.Forms.Button btnOptions;
         private System.Windows.Forms.Button btnRecentre;
         private System.Windows.Forms.Button btnCentreSelected;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox cbCataloguesFilter;
     }
 }
