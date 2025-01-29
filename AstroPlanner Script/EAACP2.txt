@@ -395,7 +395,13 @@ sub LogObservation(ByRef obj as APPlanObject, Notes as string)
 	if TelescopeResource.Default <> nil then oObs.Telescope = TelescopeResource.Default.Name
 	
 	// Specify default imager
-	if ImagerResource.Default<>nil then oObs.Imager = ImagerResource.Default.Name
+	if ImagerResource.Default <> nil then oObs.Imager = ImagerResource.Default.Name
+	
+	// Specify default filter used (if any)
+	if FilterResource.Default <> nil then oObs.Filter = FilterResource.Default.Name
+	
+	// Specify the focal length of the scope (Focal reducers and/or extension tubes)
+	if OpticalAidResource.Default <> nil then oObs.OpticalAid = OpticalAidResource.Default.Name
 	
 	// Associate observation with current plan
 	oObs.Plan = Plan().FilePath
@@ -500,6 +506,12 @@ sub main()
 	
 	// Get the incoming parameters
 	dim oCmd as JSON = WebServer.LaunchParameters
+	
+	if oCmd = nil then
+		Print "This is a Web Services only script that can only be called by an external application (such as EAACP2.exe). It cannot be executed inside AstroPlanner."
+		return
+	end if
+	
 	Debug "JSON in=",oCmd.ToString
 	iCmd = oCmd.Lookup("Cmd", 0)
 	iOption = oCmd.Lookup("Option",0)
