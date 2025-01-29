@@ -792,6 +792,12 @@ namespace EAACP
                 // Store the search results for DSA and Search List display
                 List<string[]> listOfSearchResults;
 
+                if (!IsAPRunning())
+                {
+                    Speak(AstroPlannerSpeak + " is not running");
+                    return;
+                }
+
                 Speak("Searching");
 
                 APGetCmdResult apOut = APGetObjects(5, 2, "", CreateSearchParams(SearchRA, SearchDec));

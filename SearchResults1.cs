@@ -22,6 +22,7 @@ namespace EAACP
         DataTable dtUniqueCatalogues = new DataTable();
         int totalResults = 0;
         string stellariumDSOFilter;
+        string displayMode = "All";
 
         public frmCP EAACP;
 
@@ -143,8 +144,10 @@ namespace EAACP
             this.Text = $"Search Results: {totalResults} objects, Current View: {viewCount} objects";
         }
 
-        private void btnDrawSelection_Click(object sender, EventArgs e)
+        private void DrawSelectedObjects()
         {
+            displayMode = "Selected";
+
             DataTable Selected = new DataTable();
 
             Selected.Columns.Add("ID");
@@ -193,19 +196,30 @@ namespace EAACP
 
                 Selected.Rows.Add(SelectedRow);
             }
-            
+
             Stellarium.DrawObjects(Selected);
 
             UpdateSearchInfo(dgvSearchResults.SelectedRows.Count);
         }
 
-        private void btnPlotAll_Click(object sender, EventArgs e)
+        private void btnDrawSelection_Click(object sender, EventArgs e)
         {
+            DrawSelectedObjects();
+        }
 
-            // Stop the catalogues filter from firing
+        private void ResetCatalogueFilter()
+        {
             cbCataloguesFilter.SelectedIndexChanged -= cbCataloguesFilter_SelectedIndexChanged;
             cbCataloguesFilter.SelectedIndex = 0;
             cbCataloguesFilter.SelectedIndexChanged += cbCataloguesFilter_SelectedIndexChanged;
+        }   
+
+        private void btnPlotAll_Click(object sender, EventArgs e)
+        {
+            displayMode = "All";
+
+            // Stop the catalogues filter from firing
+            ResetCatalogueFilter();
 
             // Remove any filtering
             dt.DefaultView.RowFilter = "";
@@ -273,7 +287,19 @@ namespace EAACP
                 frmOpt.TopMost = true;
                 if (frmOpt.ShowDialog() == DialogResult.OK)
                 {
-
+                    // If the user hs changed the display attributes then update the current plot selection on ext.
+                    switch (displayMode)
+                    {
+                        case "All":
+                            Stellarium.DrawObjects(dt);
+                            break;
+                        case "Filtered":
+                            DrawCatalogueFiltered();
+                            break;
+                        case "Selected":
+                            DrawSelectedObjects();
+                            break;
+                    }
                 }
             }
         }
@@ -293,8 +319,10 @@ namespace EAACP
             }
         }
 
-        private void cbCataloguesFilter_SelectedIndexChanged(object sender, EventArgs e)
+        private void DrawCatalogueFiltered()
         {
+            displayMode = "Filtered";
+
             string apCatalogue = cbCataloguesFilter.Text;
             if (apCatalogue == "All Catalogues")
             {
@@ -311,7 +339,11 @@ namespace EAACP
 
                 UpdateSearchInfo(dv.ToTable().Rows.Count);
             }
+        }
 
+        private void cbCataloguesFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            DrawCatalogueFiltered();
         }
 
         private void btnAllCats_Click(object sender, EventArgs e)
@@ -331,7 +363,12 @@ namespace EAACP
 
         private void btnClearPlot_Click(object sender, EventArgs e)
         {
+            displayMode = "All";
             Stellarium.ClearObjects();
+
+            // Stop the catalogues filter from firing
+            ResetCatalogueFilter();
+
             UpdateSearchInfo(0);
         }
 
