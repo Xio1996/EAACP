@@ -15,30 +15,6 @@ namespace EAACP
         public QuickObs()
         {
             InitializeComponent();
-
-            if (Properties.Settings.Default.QOYPos == -1)
-            {
-                this.CenterToParent();
-            }
-            else
-            {
-                if (Screen.PrimaryScreen.Bounds.Width > Properties.Settings.Default.QOXPos + this.Width)
-                {
-                    this.Left = Properties.Settings.Default.QOXPos;
-                    if (System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height > Properties.Settings.Default.QOYPos + this.Height)
-                    {
-                        this.Top = Properties.Settings.Default.QOYPos;
-                    }
-                    else
-                    {
-                        this.CenterToParent();
-                    }
-                }
-                else
-                {
-                    this.CenterToParent();
-                }
-            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

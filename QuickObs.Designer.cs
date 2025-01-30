@@ -112,7 +112,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "QuickObs";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Quick Observation";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.QuickObs_FormClosing);
             this.ResumeLayout(false);

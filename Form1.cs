@@ -97,8 +97,13 @@ namespace EAACP
             {
                 this.Width = Properties.Settings.Default.frmWidth;
                 this.Height = Properties.Settings.Default.frmHeight;
+                this.Left = Properties.Settings.Default.XPos;
+                this.Top = Properties.Settings.Default.YPos;
 
-                if (Screen.PrimaryScreen.Bounds.Width > Properties.Settings.Default.XPos + this.Width)
+                // Center the form on the screen, if the form is larger off the screen then center the form on the screen
+                WindowHelper.EnsureWindowVisible(this);
+
+               /* if (Screen.PrimaryScreen.Bounds.Width > Properties.Settings.Default.XPos + this.Width)
                 {
                     this.Left = Properties.Settings.Default.XPos;
                     if (System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height > Properties.Settings.Default.YPos + this.Height)
@@ -113,7 +118,7 @@ namespace EAACP
                 else
                 {
                     this.CenterToScreen();
-                }
+                } */
             }
 
             SetTimer();
@@ -472,7 +477,7 @@ namespace EAACP
 
             using (QuickObs formObs = new QuickObs())
             {
-                formObs.TopMost = true; 
+                formObs.TopMost = true;
 
                 // Associated objects
                 formObs.Controls["chkAssociated"].Visible = bAssociated;
