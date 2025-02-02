@@ -56,6 +56,8 @@ namespace EAACP
             Stellarium.ScriptFolder = Properties.Settings.Default.StScriptFolder;
 
             stellariumDSOFilter = Stellarium.GetStelProperty("NebulaMgr.catalogFilters");
+            cbStellariumShowDSOImage.Checked = bool.Parse(Stellarium.GetStelProperty("actionShow_DSO_Textures", true));
+            cbStellariumMinorBodyMarkers.Checked = bool.Parse(Stellarium.GetStelProperty("actionShow_Planets_ShowMinorBodyMarkers", true));
 
             if (ResultsList != null || ResultsTable != null)
             {
@@ -375,6 +377,21 @@ namespace EAACP
         private void SearchResults_FormClosing(object sender, FormClosingEventArgs e)
         {
             Stellarium.SetStelProperty("NebulaMgr.catalogFilters", stellariumDSOFilter);
+        }
+
+        private void cbStellariumShowDSOImage_CheckedChanged(object sender, EventArgs e)
+        {
+            Stellarium.SetStelProperty("actionShow_DSO_Textures", cbStellariumShowDSOImage.Checked.ToString());
+        }
+
+        private void cbStellariumMinorBodyMarkers_CheckedChanged(object sender, EventArgs e)
+        {
+            Stellarium.SetStelProperty("actionShow_Planets_ShowMinorBodyMarkers", cbStellariumMinorBodyMarkers.Checked.ToString());
+        }
+
+        private void cbStellariumSatellites_CheckStateChanged(object sender, EventArgs e)
+        {
+            Stellarium.SetStelProperty("actionShow_Satellite_Hints", cbStellariumSatellites.Checked.ToString());
         }
     }
 }

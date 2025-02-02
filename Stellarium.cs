@@ -176,6 +176,14 @@ namespace EAACP
                     {
                         return value.GetDouble().ToString();
                     }
+                    else if (value.ValueKind == JsonValueKind.False)
+                    {
+                        return "false";
+                    }
+                    else if (value.ValueKind == JsonValueKind.True)
+                    {
+                        return "true";
+                    }
                     else
                     {
                         return value.GetString();
@@ -217,13 +225,18 @@ namespace EAACP
             return result;
         }
 
-        public string SyncStellariumToPosition(double RA, double Dec)
+        public string SyncStellariumToPosition(double RA, double Dec, bool RAHours = true)
         {
             string sWebServiceURL = $"http://{IPAddress}:{Port}/api/main/focus";
             string sPos = $"{RA}, {Dec}";
 
             // Convert selected object's RA to degrees and then both RA and Dec to radians
-            RA = RA * 15 * Math.PI / 180;
+            if ( RAHours)
+            {
+                RA = RA * 15;
+            }
+
+            RA = RA * Math.PI / 180;
             Dec = Dec * Math.PI / 180;
 
             // Calculate 3D vector for Stellarium
@@ -882,11 +895,11 @@ namespace EAACP
             return apObject;
         }
 
-        public void MarkTelescopePosition(string sRA, string sDec, int autoDeleteTimeoutMs)
+        public void MarkTelescopePosition(string sRA, string sDec, int autoDeleteTimeoutMs, string markerGraphic, string markerSize, string markerColour)
         {
             string sWebServiceURL = $"http://{IPAddress}:{Port}/api/scripts/direct";
 
-            string sCode = $"MarkerMgr.markerEquatorial(\"{sRA}\",\"{sDec}\",true,true,\"crossed-circle\",\"#ffff00\",20,true,{autoDeleteTimeoutMs},false);";
+            string sCode = $"MarkerMgr.markerEquatorial(\"{sRA}\",\"{sDec}\",true,true,\"{markerGraphic}\",\"{markerColour}\",{markerSize},true,{autoDeleteTimeoutMs},false);";
 
             var content = new FormUrlEncodedContent(new[]
             {

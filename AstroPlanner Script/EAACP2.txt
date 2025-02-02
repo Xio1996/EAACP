@@ -83,7 +83,7 @@ class APCmdObject
 	
 end class
 
-// GetObjects Option 1=First selected, 2=All selected, 3=Object of type=ObjType,4=All objects in plan.
+// GetObjects Option 1=First selected, 2=All selected, 3=Object of type=ObjType,4=All objects in plan
 // {"Cmd":2,"Option":1,"ObjType":"extMinor"}
 sub GetObjects(iOption as integer, sType as string, ByRef Result as JSON)
 	dim Objects() as APPlanObject

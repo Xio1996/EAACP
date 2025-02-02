@@ -43,10 +43,15 @@
             this.btnInfoTextOption = new System.Windows.Forms.Button();
             this.btnSetInfoText = new System.Windows.Forms.Button();
             this.btnConfig = new System.Windows.Forms.Button();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.btnTelescopeTrackingOptions = new System.Windows.Forms.Button();
+            this.btnTelescopeTracking = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.btnShowTelescope = new System.Windows.Forms.Button();
             this.flpMain.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // flpMain
@@ -57,11 +62,13 @@
             this.flpMain.Controls.Add(this.btnAddtoAP);
             this.flpMain.Controls.Add(this.panel1);
             this.flpMain.Controls.Add(this.panel2);
+            this.flpMain.Controls.Add(this.panel3);
+            this.flpMain.Controls.Add(this.btnShowTelescope);
             this.flpMain.Controls.Add(this.btnConfig);
             this.flpMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpMain.Location = new System.Drawing.Point(0, 0);
             this.flpMain.Name = "flpMain";
-            this.flpMain.Size = new System.Drawing.Size(154, 341);
+            this.flpMain.Size = new System.Drawing.Size(154, 436);
             this.flpMain.TabIndex = 0;
             // 
             // btnQuickObs
@@ -200,7 +207,7 @@
             // btnConfig
             // 
             this.btnConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnConfig.Location = new System.Drawing.Point(3, 291);
+            this.btnConfig.Location = new System.Drawing.Point(3, 387);
             this.btnConfig.Name = "btnConfig";
             this.btnConfig.Size = new System.Drawing.Size(146, 42);
             this.btnConfig.TabIndex = 4;
@@ -209,25 +216,74 @@
             this.btnConfig.UseVisualStyleBackColor = true;
             this.btnConfig.Click += new System.EventHandler(this.btnConfig_Click);
             // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.btnTelescopeTrackingOptions);
+            this.panel3.Controls.Add(this.btnTelescopeTracking);
+            this.panel3.Location = new System.Drawing.Point(3, 291);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(149, 42);
+            this.panel3.TabIndex = 8;
+            // 
+            // btnTelescopeTrackingOptions
+            // 
+            this.btnTelescopeTrackingOptions.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTelescopeTrackingOptions.Location = new System.Drawing.Point(106, 0);
+            this.btnTelescopeTrackingOptions.Margin = new System.Windows.Forms.Padding(0);
+            this.btnTelescopeTrackingOptions.Name = "btnTelescopeTrackingOptions";
+            this.btnTelescopeTrackingOptions.Size = new System.Drawing.Size(40, 42);
+            this.btnTelescopeTrackingOptions.TabIndex = 7;
+            this.btnTelescopeTrackingOptions.Text = "Opt";
+            this.toolTip1.SetToolTip(this.btnTelescopeTrackingOptions, "Object text options");
+            this.btnTelescopeTrackingOptions.UseVisualStyleBackColor = true;
+            this.btnTelescopeTrackingOptions.Click += new System.EventHandler(this.btnTelescopeTrackingOptions_Click);
+            // 
+            // btnTelescopeTracking
+            // 
+            this.btnTelescopeTracking.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTelescopeTracking.Location = new System.Drawing.Point(0, 0);
+            this.btnTelescopeTracking.Margin = new System.Windows.Forms.Padding(0);
+            this.btnTelescopeTracking.Name = "btnTelescopeTracking";
+            this.btnTelescopeTracking.Size = new System.Drawing.Size(105, 42);
+            this.btnTelescopeTracking.TabIndex = 6;
+            this.btnTelescopeTracking.Text = "Telescope Trailing OFF";
+            this.toolTip1.SetToolTip(this.btnTelescopeTracking, "Displays the telescopes location in Stellarium");
+            this.btnTelescopeTracking.UseVisualStyleBackColor = true;
+            this.btnTelescopeTracking.Click += new System.EventHandler(this.btnTelescopeTracking_Click);
+            // 
+            // btnShowTelescope
+            // 
+            this.btnShowTelescope.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnShowTelescope.Location = new System.Drawing.Point(3, 339);
+            this.btnShowTelescope.Name = "btnShowTelescope";
+            this.btnShowTelescope.Size = new System.Drawing.Size(146, 42);
+            this.btnShowTelescope.TabIndex = 9;
+            this.btnShowTelescope.Text = "Show Scope Location";
+            this.toolTip1.SetToolTip(this.btnShowTelescope, "Shows the location of the telescope in Stellarium");
+            this.btnShowTelescope.UseVisualStyleBackColor = true;
+            this.btnShowTelescope.Click += new System.EventHandler(this.btnShowTelescope_Click);
+            // 
             // frmCP
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(154, 341);
+            this.ClientSize = new System.Drawing.Size(154, 436);
             this.Controls.Add(this.flpMain);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(1087, 380);
+            this.MaximumSize = new System.Drawing.Size(1243, 475);
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(168, 88);
             this.Name = "frmCP";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "EAA CP (0.5b3)";
+            this.Text = "EAA CP (0.5b5)";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmCP_FormClosing);
+            this.Load += new System.EventHandler(this.frmCP_Load);
             this.flpMain.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
+            this.panel3.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -248,6 +304,10 @@
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Button btnInfoTextOption;
         private System.Windows.Forms.Button btnSetInfoText;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.Button btnTelescopeTrackingOptions;
+        private System.Windows.Forms.Button btnTelescopeTracking;
+        private System.Windows.Forms.Button btnShowTelescope;
     }
 }
 

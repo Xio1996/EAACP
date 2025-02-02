@@ -10,6 +10,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using ASCOM.DeviceInterface;
 
 namespace EAACP
 {
@@ -24,14 +25,29 @@ namespace EAACP
         // AstroPlanner Helper class - replaces AP functions in EAACtrl Panel
         private APHelper APHelper = new APHelper();
 
+        // Astro Class
+        private AstroCalc AstroCalc = new AstroCalc();
+
         // Stellarium Communication and processing class
         private Stellarium Stellarium = new Stellarium();
+
+        private string telescopeName = "";
+        private EquatorialCoordinateType equatorialCoordinateType = EquatorialCoordinateType.equTopocentric;
+        private bool StellariumTrailing = false;
+        private int StellariumTrailingInterval = 2;
+        private string StellariumTrailingGraphic = "circle";
+        private string StellariumTrailingSize = "20";
+        private string StellariumTrailingColour = "#ffff00";
+
+        //ASCOM Telescope
+        private EAATelescope Telescope = null;
 
         // HTTP Client
         private static readonly HttpClient httpClient = new HttpClient();
         private string sMsg = "";
 
         private static System.Timers.Timer aTimer;
+        private static System.Timers.Timer TrailingTimer;
 
         private void OnTimedEvent2(Object source, ElapsedEventArgs e)
         {
@@ -53,6 +69,62 @@ namespace EAACP
             aTimer.AutoReset = true;
             aTimer.Enabled = true;
         }
+
+        private bool MarkTelescopePosition()
+        {
+            if (Telescope.Connected)
+            {
+                double RAJ2000, DecJ2000;
+                double RANOW = Telescope.RightAscension;
+                double DecNOW = Telescope.Declination;
+
+                // If the telescope uses JNOW then convert to J2000 
+                if (equatorialCoordinateType == EquatorialCoordinateType.equTopocentric)
+                {
+                    AstroCalc.JNOWToJ2000(RANOW, DecNOW, out RAJ2000, out DecJ2000);
+                }
+                else
+                {
+                    // Being lazy I'm not going to implement the other types of equatorial coordinates - assume J2000
+                    RAJ2000 = RANOW;
+                    DecJ2000 = DecNOW;
+                }
+
+
+                Stellarium.MarkTelescopePosition(APHelper.RADecimalHoursToHMS(RAJ2000, @"hh\hmm\mss\.ff\s"),
+                                                APHelper.DecDecimalToDMS(DecJ2000),
+                                                (StellariumTrailingInterval * 1000)-600,
+                                                StellariumTrailingGraphic,
+                                                StellariumTrailingSize,
+                                                StellariumTrailingColour);
+
+                if (Stellarium.Message.Contains("HTTP 401"))
+                {
+                    Speak(StellariumSpeak + " password incorrect or not set");
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+        private void OnTimedEventTrailing(Object source, ElapsedEventArgs e)
+        {
+            MarkTelescopePosition();
+        }
+
+        private void StellariumTrailingTimerON()
+        {           
+            TrailingTimer = new System.Timers.Timer(StellariumTrailingInterval*1000);
+            TrailingTimer.Elapsed += OnTimedEventTrailing;
+            TrailingTimer.AutoReset = true;
+            TrailingTimer.Enabled = true;
+        }
+
+        private void StellariumTrailingTimerOFF()
+        {
+            TrailingTimer.Enabled = false;
+            TrailingTimer.Dispose();
+        }   
 
         private bool IsProcessNameRunning(string name)
         {
@@ -102,23 +174,6 @@ namespace EAACP
 
                 // Center the form on the screen, if the form is larger off the screen then center the form on the screen
                 WindowHelper.EnsureWindowVisible(this);
-
-               /* if (Screen.PrimaryScreen.Bounds.Width > Properties.Settings.Default.XPos + this.Width)
-                {
-                    this.Left = Properties.Settings.Default.XPos;
-                    if (System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height > Properties.Settings.Default.YPos + this.Height)
-                    {
-                        this.Top = Properties.Settings.Default.YPos;
-                    }
-                    else
-                    {
-                        this.CenterToScreen();
-                    }
-                }
-                else
-                {
-                    this.CenterToScreen();
-                } */
             }
 
             SetTimer();
@@ -127,22 +182,32 @@ namespace EAACP
 
         private void frmCP_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // Save the form location/size settings
-            Properties.Settings.Default.XPos = this.Left;
-            Properties.Settings.Default.YPos = this.Top;
-            Properties.Settings.Default.frmWidth = this.Width;
-            Properties.Settings.Default.frmHeight = this.Height;
-
-            // Save the control order
-            var controlOrder = new System.Collections.Specialized.StringCollection();
-            foreach (Control control in flpMain.Controls)
+            try
             {
-                controlOrder.Add(control.Name);
+                // Save the form location/size settings
+                Properties.Settings.Default.XPos = this.Left;
+                Properties.Settings.Default.YPos = this.Top;
+                Properties.Settings.Default.frmWidth = this.Width;
+                Properties.Settings.Default.frmHeight = this.Height;
+
+                // Save the control order
+                var controlOrder = new System.Collections.Specialized.StringCollection();
+                foreach (Control control in flpMain.Controls)
+                {
+                    controlOrder.Add(control.Name);
+                }
+                Properties.Settings.Default.controlOrder = controlOrder;
+                Properties.Settings.Default.Save();
+
+                if (TrailingTimer.Enabled)
+                {
+                    StellariumTrailingTimerOFF();
+                    Telescope.Disconnect();
+                }
             }
-            Properties.Settings.Default.controlOrder = controlOrder;
-
-
-            Properties.Settings.Default.Save();
+            catch (Exception)
+            {
+            }
         }
 
         private Control draggedControl;
@@ -367,6 +432,7 @@ namespace EAACP
                     }
                     else if (apObjects.error != 0)
                     {
+                        aAError.ErrorNumber = apObjects.error;
                         Speak(aAError.ErrorMapping[apObjects.error]);
                     }
                 }
@@ -406,6 +472,7 @@ namespace EAACP
                 }
                 else if (apObjects.error != 0)
                 {
+                    aAError.ErrorNumber = apObjects.error;
                     Speak(aAError.ErrorMapping[apObjects.error]);
                 }
             }
@@ -432,6 +499,11 @@ namespace EAACP
             if (apObjects.error == 0 && apObjects.results != null)
             {
                 return apObjects;
+            }
+            else if (apObjects.error != 0)
+            {
+                aAError.ErrorNumber = apObjects.error;
+                Speak(aAError.ErrorMapping[apObjects.error]);
             }
 
             return null;
@@ -594,6 +666,12 @@ namespace EAACP
                 return;
             }
 
+            if (obj == null)
+            {
+                Speak("No object selected in " + StellariumSpeak);
+                return;
+            }
+
             if (Stellarium.Message!="exception" && obj!=null)
             {
                 APPutCmd aPPutCmd = new APPutCmd();
@@ -608,6 +686,13 @@ namespace EAACP
                     Speak(aAError.Message);
                     return;
                 }
+
+                if (sOut == "{\"error\":4}")
+                {
+                    Speak(AstroPlannerSpeak + ", Authentication string error");
+                    return;
+                }
+
                 Speak("Object added to " + AstroPlannerSpeak);
             }
             else 
@@ -649,10 +734,14 @@ namespace EAACP
 
             //Creates DSA for AP objects - ToDo if minor body then optionally use JPL webservices.
             APCmdObject SelectedObject = APGetSelectedObject();
-            if (SelectedObject == null)
+            if (aAError.ErrorNumber ==0 &&  SelectedObject == null)
             {
                 Speak("No object selected");
                 //MessageBox.Show("No object selected in AstroPlanner.", "EAACtrl", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            else if (aAError.ErrorNumber != 0)
+            {
                 return;
             }
 
@@ -786,6 +875,10 @@ namespace EAACP
                     Speak("No object selected in " + AstroPlannerSpeak);
                     return;
                 }
+                else if (aAError.ErrorNumber != 0)
+                {
+                    return;
+                }
 
                 SearchID = SelectedObject.ID;
                 SearchRA = SelectedObject.RA2000;
@@ -806,10 +899,14 @@ namespace EAACP
                 Speak("Searching");
 
                 APGetCmdResult apOut = APGetObjects(5, 2, "", CreateSearchParams(SearchRA, SearchDec));
-                if (apOut == null)
+                if (aAError.ErrorNumber == 0 && apOut == null)
                 {
                     Speak("No search results");
                     
+                    return;
+                }
+                else if (aAError.ErrorNumber != 0)
+                {
                     return;
                 }
 
@@ -941,6 +1038,10 @@ namespace EAACP
                 Speak("No object selected");
                 return;
             }
+            else if (aAError.ErrorNumber != 0)
+            {
+                return;
+            }
 
             bool showID = Properties.Settings.Default.objTxtID;
             bool showName = Properties.Settings.Default.objTxtName;
@@ -957,6 +1058,161 @@ namespace EAACP
             
             string objectText = APHelper.TargetDisplay(SelectedObject, maxiChars,showID, showName,showConstellation, showType, showMagnitude );
             WriteObjectTextToFile(objectText);
+        }
+
+        private void btnTelescopeTracking_Click(object sender, EventArgs e)
+        {
+            if (IsStellariumRunning() == false)
+            {
+                Speak(StellariumSpeak + " is not running");
+                return;
+            }
+
+            if (telescopeName == "")
+            {
+                Speak("No telescope selected");
+                return;
+            }
+
+            bool trailing = !StellariumTrailing;
+            if (trailing)
+            {
+                if (Telescope == null)
+                {
+                    Telescope = new EAATelescope(telescopeName);
+                }
+
+                if (!Telescope.Connected)
+                {
+                    // Connect to telescope
+                    if (!Telescope.Connect())
+                    {
+                        Speak("Cannot connect to telescope");
+                        Speak(Telescope.Message);
+                        return;
+                    }
+
+                    equatorialCoordinateType = Telescope.EquatorialSystemECT;
+                    Speak("Telescope connected");
+                }
+                
+                if (!MarkTelescopePosition())
+                {
+                    return;
+                }
+
+                // Start timer to get telescope position
+                StellariumTrailingTimerON();
+
+                // Send to Stellarium
+                btnTelescopeTracking.Text = "Telescope Trailing ON";
+                StellariumTrailing = !StellariumTrailing;
+            }
+            else
+            {
+                StellariumTrailingTimerOFF();
+
+                btnTelescopeTracking.Text = "Telescope Trailing OFF";
+                StellariumTrailing = !StellariumTrailing;
+            }
+        }
+
+        private void LoadStellariumTrailingParameters()
+        {
+            telescopeName = Properties.Settings.Default.ASCOMTelescope;
+
+            if (int.TryParse(Properties.Settings.Default.TTASCOMUpdateRate, out int trailingInterval))
+            {
+                StellariumTrailingInterval = trailingInterval;
+            }
+            StellariumTrailingGraphic = Properties.Settings.Default.TTGraphicSymbol;
+            StellariumTrailingSize = Properties.Settings.Default.TTGraphicSize;
+            
+            Color argb = Properties.Settings.Default.TTGraphicColour;
+            StellariumTrailingColour = $"#{argb.R:X2}{argb.G:X2}{argb.B:X2}";
+        }
+
+        private void btnTelescopeTrackingOptions_Click(object sender, EventArgs e)
+        {
+            bool telescopeChanged = false;
+            using (TelescopeTrackingOptions frmOpt = new TelescopeTrackingOptions())
+            {
+                frmOpt.TopMost = true;
+                if (frmOpt.ShowDialog() == DialogResult.OK)
+                {
+                    // Telescope change - if connected to another telescope then disconnect
+                    if (telescopeName != Properties.Settings.Default.ASCOMTelescope)
+                    {
+                        telescopeName = Properties.Settings.Default.ASCOMTelescope;
+                        if (Telescope != null)
+                        {
+                            Telescope.Disconnect();
+                            Telescope = new EAATelescope(telescopeName);
+                            telescopeChanged = true;
+                        }
+                    }
+
+                    LoadStellariumTrailingParameters();
+
+                    if (StellariumTrailing)
+                    {
+                        if (telescopeChanged)
+                        {
+                            if (!Telescope.Connect())
+                            {
+                                Speak("Cannot connect to new telescope");
+                                return;
+                            }
+                        }
+       
+                        StellariumTrailingTimerOFF();
+                        MarkTelescopePosition();
+                        StellariumTrailingTimerON();
+                    }
+                }
+            }
+        }
+
+        private void frmCP_Load(object sender, EventArgs e)
+        {
+            LoadStellariumTrailingParameters();
+        }
+
+        private void btnShowTelescope_Click(object sender, EventArgs e)
+        {
+            if (telescopeName=="")
+            {
+                Speak("No telescope selected");
+                return;
+            }
+
+            if (Telescope == null)
+            {
+                Speak("Telescope not connected");
+                return;
+            }
+
+            if (Telescope.Connected)
+            {
+                double RAJ2000, DecJ2000;
+                double RANOW = Telescope.RightAscension;
+                double DecNOW = Telescope.Declination;
+
+                // If the telescope uses JNOW then convert to J2000 
+                if (equatorialCoordinateType == EquatorialCoordinateType.equTopocentric)
+                {
+                    AstroCalc.JNOWToJ2000(RANOW, DecNOW, out RAJ2000, out DecJ2000);
+                }
+                else
+                {
+                    // Being lazy I'm not going to implement the other types of equatorial coordinates - assume J2000
+                    RAJ2000 = RANOW;
+                    DecJ2000 = DecNOW;
+                }
+
+                Stellarium.SyncStellariumToPosition(RAJ2000, DecJ2000, true);
+                
+            }
         }
     }
 
@@ -1016,3 +1272,5 @@ namespace EAACP
         public int Associated { get; set; }
     }
 }
+
+

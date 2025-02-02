@@ -61,7 +61,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("380")]
+        [global::System.Configuration.DefaultSettingValueAttribute("475")]
         public int frmHeight {
             get {
                 return ((int)(this["frmHeight"]));
@@ -565,7 +565,7 @@ namespace EAACP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\"\\\"")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string ASCOMTelescope {
             get {
                 return ((string)(this["ASCOMTelescope"]));
@@ -775,6 +775,78 @@ namespace EAACP.Properties {
             }
             set {
                 this["StLabelDistance"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool TelescopeTracking {
+            get {
+                return ((bool)(this["TelescopeTracking"]));
+            }
+            set {
+                this["TelescopeTracking"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("crossed-circle")]
+        public string TTGraphicSymbol {
+            get {
+                return ((string)(this["TTGraphicSymbol"]));
+            }
+            set {
+                this["TTGraphicSymbol"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public string TTGraphicSize {
+            get {
+                return ((string)(this["TTGraphicSize"]));
+            }
+            set {
+                this["TTGraphicSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Red")]
+        public global::System.Drawing.Color TTGraphicColour {
+            get {
+                return ((global::System.Drawing.Color)(this["TTGraphicColour"]));
+            }
+            set {
+                this["TTGraphicColour"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("AstroPlanner")]
+        public string TTTrackingSource {
+            get {
+                return ((string)(this["TTTrackingSource"]));
+            }
+            set {
+                this["TTTrackingSource"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public string TTASCOMUpdateRate {
+            get {
+                return ((string)(this["TTASCOMUpdateRate"]));
+            }
+            set {
+                this["TTASCOMUpdateRate"] = value;
             }
         }
     }

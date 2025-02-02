@@ -12,7 +12,7 @@
       <Value Profile="(Default)">170</Value>
     </Setting>
     <Setting Name="frmHeight" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">380</Value>
+      <Value Profile="(Default)">475</Value>
     </Setting>
     <Setting Name="Auth" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -138,7 +138,7 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="ASCOMTelescope" Type="System.String" Scope="User">
-      <Value Profile="(Default)">\"\"</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="StScriptFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -190,6 +190,24 @@
     </Setting>
     <Setting Name="StLabelDistance" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">15</Value>
+    </Setting>
+    <Setting Name="TelescopeTracking" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="TTGraphicSymbol" Type="System.String" Scope="User">
+      <Value Profile="(Default)">crossed-circle</Value>
+    </Setting>
+    <Setting Name="TTGraphicSize" Type="System.String" Scope="User">
+      <Value Profile="(Default)">20</Value>
+    </Setting>
+    <Setting Name="TTGraphicColour" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Red</Value>
+    </Setting>
+    <Setting Name="TTTrackingSource" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AstroPlanner</Value>
+    </Setting>
+    <Setting Name="TTASCOMUpdateRate" Type="System.String" Scope="User">
+      <Value Profile="(Default)">2</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -44,6 +44,9 @@
             this.btnDSOStandard = new System.Windows.Forms.Button();
             this.btnDSOAll = new System.Windows.Forms.Button();
             this.btnClearPlot = new System.Windows.Forms.Button();
+            this.cbStellariumShowDSOImage = new System.Windows.Forms.CheckBox();
+            this.cbStellariumMinorBodyMarkers = new System.Windows.Forms.CheckBox();
+            this.cbStellariumSatellites = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSearchResults)).BeginInit();
             this.SuspendLayout();
             // 
@@ -153,10 +156,36 @@
             this.btnClearPlot.UseVisualStyleBackColor = true;
             this.btnClearPlot.Click += new System.EventHandler(this.btnClearPlot_Click);
             // 
+            // cbStellariumShowDSOImage
+            // 
+            resources.ApplyResources(this.cbStellariumShowDSOImage, "cbStellariumShowDSOImage");
+            this.cbStellariumShowDSOImage.Checked = true;
+            this.cbStellariumShowDSOImage.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbStellariumShowDSOImage.Name = "cbStellariumShowDSOImage";
+            this.cbStellariumShowDSOImage.UseVisualStyleBackColor = true;
+            this.cbStellariumShowDSOImage.CheckedChanged += new System.EventHandler(this.cbStellariumShowDSOImage_CheckedChanged);
+            // 
+            // cbStellariumMinorBodyMarkers
+            // 
+            resources.ApplyResources(this.cbStellariumMinorBodyMarkers, "cbStellariumMinorBodyMarkers");
+            this.cbStellariumMinorBodyMarkers.Name = "cbStellariumMinorBodyMarkers";
+            this.cbStellariumMinorBodyMarkers.UseVisualStyleBackColor = true;
+            this.cbStellariumMinorBodyMarkers.CheckedChanged += new System.EventHandler(this.cbStellariumMinorBodyMarkers_CheckedChanged);
+            // 
+            // cbStellariumSatellites
+            // 
+            resources.ApplyResources(this.cbStellariumSatellites, "cbStellariumSatellites");
+            this.cbStellariumSatellites.Name = "cbStellariumSatellites";
+            this.cbStellariumSatellites.UseVisualStyleBackColor = true;
+            this.cbStellariumSatellites.CheckStateChanged += new System.EventHandler(this.cbStellariumSatellites_CheckStateChanged);
+            // 
             // SearchResults
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cbStellariumSatellites);
+            this.Controls.Add(this.cbStellariumMinorBodyMarkers);
+            this.Controls.Add(this.cbStellariumShowDSOImage);
             this.Controls.Add(this.btnClearPlot);
             this.Controls.Add(this.btnDSOAll);
             this.Controls.Add(this.btnDSOStandard);
@@ -203,5 +232,8 @@
         private System.Windows.Forms.Button btnDSOStandard;
         private System.Windows.Forms.Button btnDSOAll;
         private System.Windows.Forms.Button btnClearPlot;
+        private System.Windows.Forms.CheckBox cbStellariumShowDSOImage;
+        private System.Windows.Forms.CheckBox cbStellariumMinorBodyMarkers;
+        private System.Windows.Forms.CheckBox cbStellariumSatellites;
     }
 }
