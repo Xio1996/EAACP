@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace EAACP
@@ -186,21 +187,50 @@ namespace EAACP
             return sInfo;
         }
 
+        public static string RemoveNonDigitSymbols(string input)
+        {
+            return Regex.Replace(input, @"[^\d.-]", "");
+        }
+
+        public static bool IsArcSeconds(string input)
+        {
+            return input.Contains("\"");
+        }
+
+        public static bool IsArcMinutes(string input)
+        {
+            return input.Contains("'");
+        }
+
         public SizeInfo ObjectSize(string apSize)
         {
+
             SizeInfo sizeInfo = new SizeInfo();
             sizeInfo.MajorAxis = 0; sizeInfo.MinorAxis = 0;
 
-            var Sizes = apSize.Split('x');
-            if (Sizes.Length == 2)
+            try
             {
-                sizeInfo.MajorAxis = double.Parse(Sizes[0].Trim());
-                sizeInfo.MinorAxis = double.Parse(Sizes[1].Trim());
+
+                var Sizes = apSize.Split('x');
+                if (Sizes.Length == 2)
+                {
+                    sizeInfo.MajorAxis = double.Parse(RemoveNonDigitSymbols(Sizes[0].Trim()));
+                    sizeInfo.MinorAxis = double.Parse(RemoveNonDigitSymbols(Sizes[1].Trim()));
+                }
+                else
+                {
+                    sizeInfo.MajorAxis = double.Parse(RemoveNonDigitSymbols(apSize.Trim()));
+                    if (IsArcSeconds(apSize))
+                    { 
+                        sizeInfo.MajorAxis /= 60.0;
+                    }
+                   
+                    sizeInfo.MinorAxis = sizeInfo.MajorAxis;
+                }
             }
-            else
+            catch (Exception)
             {
-                sizeInfo.MajorAxis = double.Parse(apSize.Trim());
-                sizeInfo.MinorAxis = sizeInfo.MajorAxis;
+          
             }
 
             return sizeInfo;
