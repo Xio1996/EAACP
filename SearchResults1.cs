@@ -189,7 +189,7 @@ namespace EAACP
                 UpdateSearchInfo(totalResults);
             }
 
-            
+
         }
 
         private void UpdateSearchInfo(int viewCount)
@@ -291,7 +291,7 @@ namespace EAACP
             cbCataloguesFilter.SelectedIndexChanged -= cbCataloguesFilter_SelectedIndexChanged;
             cbCataloguesFilter.SelectedIndex = 0;
             cbCataloguesFilter.SelectedIndexChanged += cbCataloguesFilter_SelectedIndexChanged;
-        }   
+        }
 
         private void btnPlotAll_Click(object sender, EventArgs e)
         {
@@ -405,7 +405,7 @@ namespace EAACP
 
         private void btnCentreSelected_Click(object sender, EventArgs e)
         {
-            if (dgvSearchResults.SelectedRows.Count>0)
+            if (dgvSearchResults.SelectedRows.Count > 0)
             {
                 double RA = double.Parse(dgvSearchResults.SelectedRows[0].Cells["dRA"].Value.ToString());
                 double Dec = double.Parse(dgvSearchResults.SelectedRows[0].Cells["dDec"].Value.ToString());
@@ -489,18 +489,56 @@ namespace EAACP
         // add fields
         private ContextMenuStrip dgvContextMenu;
         private ToolStripMenuItem miCopyCell;
-        private ToolStripMenuItem miCopyRow;
         private ToolStripMenuItem miCopyTable;
+        private ToolStripMenuItem miCopySelectedRows;
+        private ToolStripMenuItem miSelectStarSystem;
+
+        // helper to check the row meets the "Dbl" + (Washington|WDS) requirement
+        private bool IsDoubleWDSRow(DataGridViewRow row)
+        {
+            if (row == null) return false;
+
+            var typeCell = row.Cells["Type"]?.Value;
+            var catCell = row.Cells["Catalogue"]?.Value;
+            if (typeCell == null || catCell == null) return false;
+
+            string type = typeCell.ToString().Trim();
+            string cat = catCell.ToString();
+
+            if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(cat)) return false;
+
+            // Accept exact "Dbl" or values that start with "Dbl" (case-insensitive)
+            if (!type.Equals("Dbl", StringComparison.OrdinalIgnoreCase) &&
+                !type.StartsWith("Dbl", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // Catalogue must contain "Washington" or "WDS" (case-insensitive)
+            if (cat.IndexOf("Washington", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                cat.IndexOf("WDS", StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+
+            return false;
+        }
 
         // call this from the form constructor after InitializeComponent()
         private void InitDataGridViewContextMenu(DataGridView dgv)
         {
             dgvContextMenu = new ContextMenuStrip();
             miCopyCell = new ToolStripMenuItem("Copy Cell", null, CopyCell_Click);
-            miCopyRow = new ToolStripMenuItem("Copy Row", null, CopyRow_Click);
+            miCopySelectedRows = new ToolStripMenuItem("Copy Selected Rows", null, CopySelectedRows_Click);
             miCopyTable = new ToolStripMenuItem("Copy Table", null, CopyTable_Click);
 
-            dgvContextMenu.Items.AddRange(new ToolStripItem[] { miCopyCell, miCopyRow, new ToolStripSeparator(), miCopyTable });
+            miSelectStarSystem = new ToolStripMenuItem("Show Star System", null, SelectStarSystem_Click);
+
+            // include the new "Copy Selected Rows" menu item and keep logical separators
+            dgvContextMenu.Items.AddRange(new ToolStripItem[] {
+                miCopyCell,
+                miCopySelectedRows,
+                miCopyTable,
+                new ToolStripSeparator(),
+                miSelectStarSystem
+            });
+
             dgv.ContextMenuStrip = dgvContextMenu;
 
             dgv.MouseDown += Dgv_MouseDown;               // detect right-click and select cell/row
@@ -515,16 +553,64 @@ namespace EAACP
 
             if (hit.Type == DataGridViewHitTestType.Cell)
             {
-                // make the clicked cell current and select the row
-                dgv.CurrentCell = dgv[hit.ColumnIndex, hit.RowIndex];
-                dgv.ClearSelection();
-                dgv.Rows[hit.RowIndex].Selected = true;
+                int rowIndex = hit.RowIndex;
+                int colIndex = hit.ColumnIndex;
+                if (rowIndex < 0 || colIndex < 0)
+                {
+                    // clicked invalid cell area -> clear selection
+                    dgv.ClearSelection();
+                    return;
+                }
+
+                var clickedRow = dgv.Rows[rowIndex];
+
+                if (clickedRow.Selected)
+                {
+                    // Row under cursor already selected -> keep entire selection,
+                    // just make clicked cell the current cell so context menu operations use it.
+                    try
+                    {
+                        dgv.CurrentCell = dgv[colIndex, rowIndex];
+                    }
+                    catch { /* ignore if cell cannot be made current */ }
+                }
+                else
+                {
+                    // Clicked an unselected row -> select only that row
+                    dgv.ClearSelection();
+                    clickedRow.Selected = true;
+                    try
+                    {
+                        dgv.CurrentCell = dgv[colIndex, rowIndex];
+                    }
+                    catch { /* ignore */ }
+                }
             }
             else if (hit.Type == DataGridViewHitTestType.RowHeader)
             {
-                // click on row header -> select that row
-                dgv.ClearSelection();
-                dgv.Rows[hit.RowIndex].Selected = true;
+                int rowIndex = hit.RowIndex;
+                if (rowIndex >= 0)
+                {
+                    var clickedRow = dgv.Rows[rowIndex];
+                    if (!clickedRow.Selected)
+                    {
+                        dgv.ClearSelection();
+                        clickedRow.Selected = true;
+                    }
+                    // set current cell to first non-new cell in the row if possible
+                    for (int c = 0; c < dgv.ColumnCount; c++)
+                    {
+                        if (!dgv.Rows[rowIndex].IsNewRow)
+                        {
+                            try
+                            {
+                                dgv.CurrentCell = dgv[c, rowIndex];
+                                break;
+                            }
+                            catch { }
+                        }
+                    }
+                }
             }
             else
             {
@@ -532,15 +618,33 @@ namespace EAACP
                 dgv.ClearSelection();
             }
         }
-
         private void DgvContextMenu_Opening(object sender, CancelEventArgs e)
         {
             var cms = (ContextMenuStrip)sender;
             var dgv = (DataGridView)cms.SourceControl;
 
             miCopyCell.Enabled = dgv.CurrentCell != null;
-            miCopyRow.Enabled = dgv.SelectedRows.Count > 0 || dgv.CurrentCell != null;
             miCopyTable.Enabled = dgv.Rows.Count > 0;
+            miCopySelectedRows.Enabled = dgv.SelectedRows.Count > 0;
+
+            // Enable "Select as Star System" only when at least one of the selected rows (or current row if none selected)
+            // matches: Type is Dbl and Catalogue contains "Washington" or "WDS"
+            IEnumerable<DataGridViewRow> rowsToCheck;
+            if (dgv.SelectedRows.Count > 0)
+            {
+                rowsToCheck = dgv.SelectedRows.Cast<DataGridViewRow>();
+            }
+            else if (dgv.CurrentRow != null)
+            {
+                rowsToCheck = new[] { dgv.CurrentRow };
+            }
+            else
+            {
+                rowsToCheck = Enumerable.Empty<DataGridViewRow>();
+            }
+
+            // Only one row selected and it is Dbl+WDS.
+            miSelectStarSystem.Enabled = dgvSearchResults.SelectedRows.Count ==1 && rowsToCheck.Any(r => IsDoubleWDSRow(r)) ;
         }
 
         private void CopyCell_Click(object sender, EventArgs e)
@@ -550,24 +654,6 @@ namespace EAACP
             if (cell != null)
             {
                 Clipboard.SetText(cell.FormattedValue?.ToString() ?? "");
-            }
-        }
-
-        private void CopyRow_Click(object sender, EventArgs e)
-        {
-            var dgv = (DataGridView)dgvContextMenu.SourceControl;
-            DataGridViewRow row = null;
-
-            if (dgv.SelectedRows.Count > 0)
-                row = dgv.SelectedRows[0];
-            else if (dgv.CurrentCell != null)
-                row = dgv.Rows[dgv.CurrentCell.RowIndex];
-
-            if (row != null)
-            {
-                // create tab-separated string of cell values
-                var values = row.Cells.Cast<DataGridViewCell>().Select(c => c.FormattedValue?.ToString() ?? "");
-                Clipboard.SetText(string.Join("\t", values));
             }
         }
 
@@ -588,6 +674,151 @@ namespace EAACP
             }
 
             Clipboard.SetText(sb.ToString());
+        }
+        private void CopySelectedRows_Click(object sender, EventArgs e)
+        {
+            var dgv = (DataGridView)dgvContextMenu.SourceControl;
+            var sb = new StringBuilder();
+
+            // include header row once
+            var headers = dgv.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText);
+            sb.AppendLine(string.Join("\t", headers));
+
+            // SelectedRows collection is not guaranteed to be in display order.
+            // Order by row index so output is top-to-bottom.
+            var selectedRows = dgv.SelectedRows.Cast<DataGridViewRow>()
+                                   .Where(r => !r.IsNewRow)
+                                   .OrderBy(r => r.Index);
+
+            foreach (DataGridViewRow row in selectedRows)
+            {
+                var values = row.Cells.Cast<DataGridViewCell>().Select(c => c.FormattedValue?.ToString() ?? "");
+                sb.AppendLine(string.Join("\t", values));
+            }
+
+            Clipboard.SetText(sb.ToString());
+        }
+
+        private void SelectStarSystem_Click(object sender, EventArgs e)
+        {
+            // Determine source row: prefer first selected row, otherwise current row
+            DataGridViewRow sourceRow = null;
+            if (dgvSearchResults.SelectedRows.Count > 0)
+                sourceRow = dgvSearchResults.SelectedRows[0];
+            else if (dgvSearchResults.CurrentRow != null)
+                sourceRow = dgvSearchResults.CurrentRow;
+
+            if (sourceRow == null) return;
+
+            var idObj = sourceRow.Cells["ID"]?.Value;
+            var typeObj = sourceRow.Cells["Type"]?.Value;
+            var catObj = sourceRow.Cells["Catalogue"]?.Value;
+            if (idObj == null || typeObj == null || catObj == null) return;
+
+            string sourceID = idObj.ToString().Trim();
+            string sourceType = typeObj.ToString().Trim();
+            string sourceCatalogue = catObj.ToString().Trim();
+
+            if (string.IsNullOrEmpty(sourceID) || string.IsNullOrEmpty(sourceType) || string.IsNullOrEmpty(sourceCatalogue))
+                return;
+
+            // Gather matching rows (match ID, Type and Catalogue). Use case-insensitive comparison for type/catalogue.
+            var matchingRows = new List<DataRow>();
+            var otherRows = new List<DataRow>();
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                var drID = dr["ID"]?.ToString();
+                var drType = dr["Type"]?.ToString();
+                var drCat = dr["Catalogue"]?.ToString();
+
+                if (drID == null || drType == null || drCat == null)
+                {
+                    otherRows.Add(dr);
+                    continue;
+                }
+
+                bool idMatch = string.Equals(drID.Trim(), sourceID, StringComparison.OrdinalIgnoreCase);
+                bool typeMatch = string.Equals(drType.Trim(), sourceType, StringComparison.OrdinalIgnoreCase);
+                bool catMatch = string.Equals(drCat.Trim(), sourceCatalogue, StringComparison.OrdinalIgnoreCase);
+
+                if (idMatch && typeMatch && catMatch)
+                    matchingRows.Add(dr);
+                else
+                    otherRows.Add(dr);
+            }
+
+            if (matchingRows.Count == 0)
+            {
+                MessageBox.Show("No matching rows found for the selected ID/Type/Catalogue.", "No Matches", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Build new DataTable with matching rows first (preserve original order)
+            var newDt = dt.Clone();
+            foreach (var dr in matchingRows)
+                newDt.ImportRow(dr);
+            foreach (var dr in otherRows)
+                newDt.ImportRow(dr);
+
+            // Replace underlying data and rebind
+            dt = newDt;
+            dgvSearchResults.DataSource = dt;
+
+            // Reapply expected column visibility / formatting (match existing layout)
+            if (dgvSearchResults.Columns.Contains("dRA")) dgvSearchResults.Columns["dRA"].Visible = false;
+            if (dgvSearchResults.Columns.Contains("dDec")) dgvSearchResults.Columns["dDec"].Visible = false;
+            if (dgvSearchResults.Columns.Contains("Size")) dgvSearchResults.Columns["Size"].Visible = true;
+            if (dgvSearchResults.Columns.Contains("PA")) dgvSearchResults.Columns["PA"].Visible = true;
+            if (dgvSearchResults.Columns.Contains("Const")) dgvSearchResults.Columns["Const"].Visible = true;
+
+            dgvSearchResults.RowHeadersVisible = false;
+            if (dgvSearchResults.Columns.Contains("ID")) dgvSearchResults.Columns["ID"].Frozen = true;
+            if (dgvSearchResults.Columns.Contains("Names")) dgvSearchResults.Columns["Names"].Frozen = true;
+            if (dgvSearchResults.Columns.Contains("Type")) dgvSearchResults.Columns["Type"].Frozen = true;
+            if (dgvSearchResults.Columns.Contains("Mag")) dgvSearchResults.Columns["Mag"].Frozen = true;
+
+            if (dgvSearchResults.Columns.Contains("ID")) dgvSearchResults.Columns["ID"].DefaultCellStyle.BackColor = Color.LightBlue;
+            if (dgvSearchResults.Columns.Contains("Names")) dgvSearchResults.Columns["Names"].DefaultCellStyle.BackColor = Color.LightBlue;
+            if (dgvSearchResults.Columns.Contains("Type")) dgvSearchResults.Columns["Type"].DefaultCellStyle.BackColor = Color.LightBlue;
+            if (dgvSearchResults.Columns.Contains("Mag")) dgvSearchResults.Columns["Mag"].DefaultCellStyle.BackColor = Color.LightBlue;
+
+            dgvSearchResults.AutoResizeColumns();
+
+            // Select moved rows at top and set first match as current cell
+            DataGridViewRow firstMatch = null;
+            foreach (DataGridViewRow row in dgvSearchResults.Rows)
+            {
+                if (row.IsNewRow) continue;
+                var rowID = row.Cells["ID"]?.Value?.ToString();
+                var rowType = row.Cells["Type"]?.Value?.ToString();
+                var rowCat = row.Cells["Catalogue"]?.Value?.ToString();
+
+                bool isMatch = rowID != null && rowType != null && rowCat != null &&
+                               string.Equals(rowID.Trim(), sourceID, StringComparison.OrdinalIgnoreCase) &&
+                               string.Equals(rowType.Trim(), sourceType, StringComparison.OrdinalIgnoreCase) &&
+                               string.Equals(rowCat.Trim(), sourceCatalogue, StringComparison.OrdinalIgnoreCase);
+
+                row.Selected = isMatch;
+
+                if (isMatch && firstMatch == null)
+                    firstMatch = row;
+            }
+
+            if (firstMatch != null)
+            {
+                for (int c = 0; c < dgvSearchResults.ColumnCount; c++)
+                {
+                    try
+                    {
+                        dgvSearchResults.CurrentCell = firstMatch.Cells[c];
+                        break;
+                    }
+                    catch { }
+                }
+            }
+
+            UpdateSearchInfo(dgvSearchResults.SelectedRows.Count);
         }
     }
 }
