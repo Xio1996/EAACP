@@ -419,6 +419,10 @@ namespace EAACP
                 {
                     sOut += "}";
                 }
+                if (sOut.Contains("}]") && !sOut.Contains("}]}}"))
+                {
+                    sOut += "}}";
+                }
                 if (aAError.ErrorNumber != 0)
                 {
                     Speak(aAError.Message);
@@ -829,6 +833,41 @@ namespace EAACP
 
             return sParams;
         }
+        private APCmdObject CreateComponent(APCmdObject searchObj, string componentName)
+        {
+            APCmdObject obj = new APCmdObject();
+            obj.ID = searchObj.ID;
+            obj.Name = searchObj.Name;
+            obj.Type = searchObj.Type;
+            obj.Size = searchObj.Size;
+            obj.Components = componentName + " (" + searchObj.Components + ")";
+            obj.Catalogue = searchObj.Catalogue;
+            obj.Constellation = searchObj.Constellation;
+
+            if (componentName == "A")
+            {
+                // Add primary, component A
+                obj.RA2000 = searchObj.RA2000;
+                obj.Dec2000 = searchObj.Dec2000;
+                obj.Separation = -999;
+                obj.PosAngle = -999;
+                obj.Magnitude = searchObj.Magnitude;
+                obj.Magnitude2 = 999; // Clear secondary magnitude
+            }
+            else
+            {
+                // Add secondary, component B,C,D...
+                // Calculate the position of the component using separation and position angle
+                AstroCalc.OffsetCoordinates(searchObj.RA2000, searchObj.Dec2000, searchObj.PosAngle, searchObj.Separation, out double RA_B, out double Dec_B);
+                obj.RA2000 = RA_B;
+                obj.Dec2000 = Dec_B;
+                obj.Separation = searchObj.Separation;
+                obj.PosAngle = searchObj.PosAngle;
+                obj.Magnitude = searchObj.Magnitude2;
+                obj.Magnitude2 = 999; // Clear secondary magnitude
+            }
+            return obj;
+        }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
@@ -920,6 +959,74 @@ namespace EAACP
                 {
                     Speak("Invalid " + StellariumSpeak + " script folder specified");
                     return;
+                }
+
+                // TEMP: Process double stars into separate components for Stellarium display
+                List<APCmdObject> ds = new List<APCmdObject>();
+                List<string> AComponents = new List<string>();
+
+                foreach (APCmdObject obj in apOut.results.Objects)
+                {
+                    // Only process Washington or WDS catalogued doubles
+                    if (obj.Catalogue.Contains("Washington") || obj.Catalogue.Contains("WDS"))
+                    {
+                        // Two letter doubles AB, AC, CD etc
+                        if (obj.Components.Length == 2)
+                        {
+                            // Check we haven't already created the primary component A
+                            if (!AComponents.Contains(obj.ID + obj.Catalogue))
+                            {
+                                if (obj.Components[0] == 'A')
+                                {
+                                    // Create the primary component A
+                                    ds.Add(CreateComponent(obj, "A"));
+                                    AComponents.Add(obj.ID + obj.Catalogue);
+
+                                    // Create the secondary component
+                                    ds.Add(CreateComponent(obj, obj.Components[1].ToString()));
+                                }
+                                else
+                                {
+                                    // Create the secondary component
+                                    ds.Add(CreateComponent(obj, obj.Components[1].ToString()));
+                                }
+                            }
+                            else
+                            {
+                                // Create the secondary component
+                                ds.Add(CreateComponent(obj, obj.Components[1].ToString()));
+                            }
+                        }
+                        // Components such as AB-C, AB-D, A-BC etc
+                        else if (obj.Components.Contains("-"))
+                        {
+                            string[] components = obj.Components.Split('-');
+                            // Create the secondary component
+                            ds.Add(CreateComponent(obj, components[1]));
+                        }
+                        else if (obj.Components.Length == 4 && obj.Components.Contains(","))
+                        {
+                            string[] components = obj.Components.Split(',');
+                            ds.Add(CreateComponent(obj, components[1]));
+                        }
+                        else if (obj.Components.Length == 5 && obj.Components.Contains(","))
+                        {
+                            string[] components = obj.Components.Split(',');
+                            ds.Add(CreateComponent(obj, components[1]));
+                        }
+
+                    }
+                    else
+                    {
+                        ds.Add(obj);
+                    }
+                }
+
+                // Add all the objects to the original data structure. Historically APGetCmdResult was used directly.
+                apOut.results.Objects.Clear();
+                foreach (APCmdObject obj in ds)
+                {
+                    apOut.results.Objects.Add(obj);
                 }
 
                 listOfSearchResults = Stellarium.DrawObjects(apOut);
@@ -1264,13 +1371,17 @@ namespace EAACP
         public string Catalogue { get; set; }
         public string Distance { get; set; }
         public string GalaxyType { get; set; }
-        public int PosAngle { get; set; }
+        public double PosAngle { get; set; }
         public double Magnitude { get; set; }
         public double RA2000 { get; set; }
         public double Dec2000 { get; set; }
         public double ParallacticAngle { get; set; }
         public int Associated { get; set; }
+        public double Magnitude2 { get; set; }
+        public double Separation { get; set; }
+        public string Components { get; set; }
     }
+
 }
 
 

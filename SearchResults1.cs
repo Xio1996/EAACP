@@ -64,17 +64,20 @@ namespace EAACP
                 dt.Columns.Add("ID");
                 dt.Columns.Add("Names");
                 dt.Columns.Add("Type");
-                dt.Columns.Add("Magnitude", typeof(double));
-                dt.Columns.Add("Distance Mpc", typeof(double));
+                dt.Columns.Add("Mag", typeof(double));
+                dt.Columns.Add("Mag2", typeof(double));
+                dt.Columns.Add("Dist Mpc", typeof(double));
                 dt.Columns.Add("Galaxy Type");
-                dt.Columns.Add("Catalogue");
+                dt.Columns.Add("Size");
+                dt.Columns.Add("Comp");
+                dt.Columns.Add("PA", typeof(double));
+                dt.Columns.Add("Sep", typeof(double));
                 dt.Columns.Add("RA");
                 dt.Columns.Add("Dec");
                 dt.Columns.Add("dRA");
                 dt.Columns.Add("dDec");
-                dt.Columns.Add("Size");
-                dt.Columns.Add("PosAngle");
-                dt.Columns.Add("Constellation");
+                dt.Columns.Add("Const");
+                dt.Columns.Add("Catalogue");
 
                 if (ResultsTable != null)
                 {
@@ -91,15 +94,15 @@ namespace EAACP
 
                         if (double.TryParse(APObject[3], out double Mag))
                         {
-                            row["Magnitude"] = Mag;
+                            row["Mag"] = Mag;
                         }
-                        else row["Magnitude"] = DBNull.Value;
+                        else row["Mag"] = DBNull.Value;
 
                         if (double.TryParse(APObject[5], out double Dist))
                         {
-                            row["Distance Mpc"] = Math.Round(Dist, 2);
+                            row["Dist Mpc"] = Math.Round(Dist, 2);
                         }
-                        else row["Distance Mpc"] = DBNull.Value;
+                        else row["Dist Mpc"] = DBNull.Value;
 
                         row["Galaxy Type"] = APObject[4];
                         row["Catalogue"] = APObject[6];
@@ -108,31 +111,79 @@ namespace EAACP
                         row["dRA"] = APObject[9];
                         row["dDec"] = APObject[10];
                         row["Size"] = APObject[11];
-                        row["PosAngle"] = APObject[12];
-                        row["Constellation"] = APObject[13];
+                        row["Const"] = APObject[13];
+
+                        if (double.TryParse(APObject[12], out double PA))
+                        {
+                            if (PA == -999) row["PA"] = DBNull.Value;
+                            else
+                                row["PA"] = Math.Round(PA, 2);
+                        }
+                        else row["PA"] = DBNull.Value;
+
+                        row["Const"] = APObject[13];
+                        row["Comp"] = APObject[14];
+
+                        if (double.TryParse(APObject[15], out double Sep))
+                        {
+                            if (Sep == -999) row["Sep"] = DBNull.Value;
+                            else
+                                row["Sep"] = Math.Round(Sep, 2);
+                        }
+                        else row["Sep"] = DBNull.Value;
+
+                        if (double.TryParse(APObject[16], out double Mag2))
+                        {
+                            if (Mag2 == 999) row["Mag2"] = DBNull.Value;
+                            else
+                                row["Mag2"] = Math.Round(Mag2, 2);
+                        }
+                        else row["Mag2"] = DBNull.Value;
 
                         dt.Rows.Add(row);
 
                     }
                 }
 
+
                 // Fetch and display list of unique catalogues
                 cbCataloguesFilter.SelectedIndexChanged -= cbCataloguesFilter_SelectedIndexChanged;
-                
+
                 dtUniqueCatalogues = Stellarium.UniqueCataloguesInSearchResults(dt);
                 cbCataloguesFilter.DataSource = dtUniqueCatalogues;
                 cbCataloguesFilter.DisplayMember = "Catalogue";
-                
+
                 cbCataloguesFilter.SelectedIndexChanged += cbCataloguesFilter_SelectedIndexChanged;
+
 
                 dgvSearchResults.DataSource = dt;
                 dgvSearchResults.Columns["dRA"].Visible = false;
                 dgvSearchResults.Columns["dDec"].Visible = false;
-                dgvSearchResults.Columns["Size"].Visible = false;
-                dgvSearchResults.Columns["PosAngle"].Visible = false;
-                dgvSearchResults.Columns["Constellation"].Visible = false;
+                dgvSearchResults.Columns["Size"].Visible = true;
+                dgvSearchResults.Columns["PA"].Visible = true;
+                dgvSearchResults.Columns["Const"].Visible = true;
 
-                dgvSearchResults.Sort(dgvSearchResults.Columns["Magnitude"], System.ComponentModel.ListSortDirection.Ascending);
+                dgvSearchResults.Sort(dgvSearchResults.Columns["Mag"], System.ComponentModel.ListSortDirection.Ascending);
+
+                // Removes first selection columnm
+                dgvSearchResults.RowHeadersVisible = false;
+
+                // Freeze the important columns
+                dgvSearchResults.Columns["ID"].Frozen = true;
+                dgvSearchResults.Columns["Names"].Frozen = true;
+                dgvSearchResults.Columns["Type"].Frozen = true;
+                dgvSearchResults.Columns["Mag"].Frozen = true;
+
+                // Resize to accomodate content
+                dgvSearchResults.AutoResizeColumns();
+
+                // Set the colour of the important columns
+                dgvSearchResults.Columns["ID"].DefaultCellStyle.BackColor = Color.LightBlue;
+                dgvSearchResults.Columns["Names"].DefaultCellStyle.BackColor = Color.LightBlue;
+                dgvSearchResults.Columns["Type"].DefaultCellStyle.BackColor = Color.LightBlue;
+                dgvSearchResults.Columns["Mag"].DefaultCellStyle.BackColor = Color.LightBlue;
+
+                InitDataGridViewContextMenu(dgvSearchResults);
 
                 totalResults = dt.Rows.Count;
                 UpdateSearchInfo(totalResults);
@@ -148,24 +199,26 @@ namespace EAACP
 
         private void DrawSelectedObjects()
         {
-            displayMode = "Selected";
-
             DataTable Selected = new DataTable();
 
             Selected.Columns.Add("ID");
             Selected.Columns.Add("Names");
             Selected.Columns.Add("Type");
-            Selected.Columns.Add("Magnitude", typeof(double));
-            Selected.Columns.Add("Distance Mpc", typeof(double));
+            Selected.Columns.Add("Mag", typeof(double));
+            Selected.Columns.Add("Mag2", typeof(double));
+            Selected.Columns.Add("Dist Mpc", typeof(double));
             Selected.Columns.Add("Galaxy Type");
-            Selected.Columns.Add("Catalogue");
+            Selected.Columns.Add("Size");
+            Selected.Columns.Add("Comp");
+            Selected.Columns.Add("PA", typeof(double));
+            Selected.Columns.Add("Sep", typeof(double));
             Selected.Columns.Add("RA");
             Selected.Columns.Add("Dec");
             Selected.Columns.Add("dRA");
             Selected.Columns.Add("dDec");
-            Selected.Columns.Add("Size");
-            Selected.Columns.Add("PosAngle");
-            Selected.Columns.Add("Constellation");
+            Selected.Columns.Add("Const");
+            Selected.Columns.Add("Catalogue");
+
 
             foreach (DataGridViewRow row in dgvSearchResults.SelectedRows)
             {
@@ -174,17 +227,40 @@ namespace EAACP
                 SelectedRow["Names"] = row.Cells["Names"].Value;
                 SelectedRow["Type"] = row.Cells["Type"].Value;
 
-                if (double.TryParse(row.Cells["Magnitude"].Value.ToString(), out double Mag))
+                if (double.TryParse(row.Cells["Mag"].Value.ToString(), out double Mag))
                 {
-                    SelectedRow["Magnitude"] = Mag;
+                    SelectedRow["Mag"] = Mag;
                 }
-                else SelectedRow["Magnitude"] = DBNull.Value;
+                else SelectedRow["Mag"] = DBNull.Value;
 
-                if (double.TryParse(row.Cells["Distance Mpc"].Value.ToString(), out double Dist))
+                if (double.TryParse(row.Cells["Dist Mpc"].Value.ToString(), out double Dist))
                 {
-                    SelectedRow["Distance Mpc"] = Math.Round(Dist, 2);
+                    SelectedRow["Dist Mpc"] = Math.Round(Dist, 2);
                 }
-                else SelectedRow["Distance Mpc"] = DBNull.Value;
+                else SelectedRow["Dist Mpc"] = DBNull.Value;
+
+                if (double.TryParse(row.Cells["Mag2"].Value.ToString(), out double Mag2))
+                {
+                    SelectedRow["Mag2"] = Mag2;
+                }
+                else SelectedRow["Mag2"] = DBNull.Value;
+
+                if (double.TryParse(row.Cells["PA"].Value.ToString(), out double PA))
+                {
+                    if (PA == -999) row.Cells["PA"].Value = DBNull.Value;
+                    else
+                        row.Cells["PA"].Value = Math.Round(PA, 2);
+                }
+                else row.Cells["PA"].Value = DBNull.Value;
+
+                if (double.TryParse(row.Cells["Sep"].Value.ToString(), out double Sep))
+                {
+                    if (Sep == -999) row.Cells["Sep"].Value = DBNull.Value;
+                    else
+                        row.Cells["Sep"].Value = Math.Round(Sep, 2);
+                }
+                else row.Cells["Sep"].Value = DBNull.Value;
+
 
                 SelectedRow["Galaxy Type"] = row.Cells["Galaxy Type"].Value;
                 SelectedRow["Catalogue"] = row.Cells["Catalogue"].Value;
@@ -193,8 +269,9 @@ namespace EAACP
                 SelectedRow["dRA"] = row.Cells["dRA"].Value;
                 SelectedRow["dDec"] = row.Cells["dDec"].Value;
                 SelectedRow["Size"] = row.Cells["Size"].Value;
-                SelectedRow["PosAngle"] = row.Cells["PosAngle"].Value;
-                SelectedRow["Constellation"] = row.Cells["Constellation"].Value;
+                SelectedRow["PA"] = row.Cells["PA"].Value;
+                SelectedRow["Const"] = row.Cells["Const"].Value;
+                SelectedRow["Comp"] = row.Cells["Comp"].Value;
 
                 Selected.Rows.Add(SelectedRow);
             }
@@ -255,15 +332,29 @@ namespace EAACP
                 obj.RA2000 = double.Parse(row.Cells["dRA"].Value.ToString());
                 obj.Dec2000 = double.Parse(row.Cells["dDec"].Value.ToString());
                 obj.Catalogue = row.Cells["Catalogue"].Value.ToString();
-                obj.Distance = row.Cells["Distance Mpc"].Value.ToString();
+                obj.Distance = row.Cells["Dist Mpc"].Value.ToString();
                 obj.GalaxyType = row.Cells["Galaxy Type"].Value.ToString();
                 obj.Size = row.Cells["Size"].Value.ToString();
-                obj.PosAngle = int.Parse(row.Cells["PosAngle"].Value.ToString());
-                obj.Constellation = row.Cells["Constellation"].Value.ToString();
+                obj.Constellation = row.Cells["Const"].Value.ToString();
 
-                if (double.TryParse(row.Cells["Magnitude"].Value.ToString(), out double Magnitude))
+                if (double.TryParse(row.Cells["Mag"].Value.ToString(), out double Mag))
                 {
-                    obj.Magnitude = Magnitude;
+                    obj.Magnitude = Mag;
+                }
+
+                if (double.TryParse(row.Cells["Mag2"].Value.ToString(), out double Mag2))
+                {
+                    obj.Magnitude2 = Mag2;
+                }
+
+                if (double.TryParse(row.Cells["PA"].Value.ToString(), out double PA))
+                {
+                    obj.PosAngle = PA;
+                }
+
+                if (double.TryParse(row.Cells["Sep"].Value.ToString(), out double Sep))
+                {
+                    obj.Separation = Sep;
                 }
 
                 apObjects.Add(obj);
@@ -278,7 +369,8 @@ namespace EAACP
 
             string sOut = EAACP.APExecuteScript(Uri.EscapeDataString(JsonSerializer.Serialize<APPutCmd>(aPPutCmd)));
 
-             EAACP.Speak(dgvSearchResults.SelectedRows.Count.ToString() + " Objects added");
+            EAACP.Speak(dgvSearchResults.SelectedRows.Count.ToString() + " Objects added");
+
         }
 
         private void btnOptions_Click(object sender, EventArgs e)
@@ -392,6 +484,110 @@ namespace EAACP
         private void cbStellariumSatellites_CheckStateChanged(object sender, EventArgs e)
         {
             Stellarium.SetStelProperty("actionShow_Satellite_Hints", cbStellariumSatellites.Checked.ToString());
+        }
+
+        // add fields
+        private ContextMenuStrip dgvContextMenu;
+        private ToolStripMenuItem miCopyCell;
+        private ToolStripMenuItem miCopyRow;
+        private ToolStripMenuItem miCopyTable;
+
+        // call this from the form constructor after InitializeComponent()
+        private void InitDataGridViewContextMenu(DataGridView dgv)
+        {
+            dgvContextMenu = new ContextMenuStrip();
+            miCopyCell = new ToolStripMenuItem("Copy Cell", null, CopyCell_Click);
+            miCopyRow = new ToolStripMenuItem("Copy Row", null, CopyRow_Click);
+            miCopyTable = new ToolStripMenuItem("Copy Table", null, CopyTable_Click);
+
+            dgvContextMenu.Items.AddRange(new ToolStripItem[] { miCopyCell, miCopyRow, new ToolStripSeparator(), miCopyTable });
+            dgv.ContextMenuStrip = dgvContextMenu;
+
+            dgv.MouseDown += Dgv_MouseDown;               // detect right-click and select cell/row
+            dgvContextMenu.Opening += DgvContextMenu_Opening;
+        }
+
+        private void Dgv_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            var dgv = (DataGridView)sender;
+            var hit = dgv.HitTest(e.X, e.Y);
+
+            if (hit.Type == DataGridViewHitTestType.Cell)
+            {
+                // make the clicked cell current and select the row
+                dgv.CurrentCell = dgv[hit.ColumnIndex, hit.RowIndex];
+                dgv.ClearSelection();
+                dgv.Rows[hit.RowIndex].Selected = true;
+            }
+            else if (hit.Type == DataGridViewHitTestType.RowHeader)
+            {
+                // click on row header -> select that row
+                dgv.ClearSelection();
+                dgv.Rows[hit.RowIndex].Selected = true;
+            }
+            else
+            {
+                // clicked outside cells -> clear selection
+                dgv.ClearSelection();
+            }
+        }
+
+        private void DgvContextMenu_Opening(object sender, CancelEventArgs e)
+        {
+            var cms = (ContextMenuStrip)sender;
+            var dgv = (DataGridView)cms.SourceControl;
+
+            miCopyCell.Enabled = dgv.CurrentCell != null;
+            miCopyRow.Enabled = dgv.SelectedRows.Count > 0 || dgv.CurrentCell != null;
+            miCopyTable.Enabled = dgv.Rows.Count > 0;
+        }
+
+        private void CopyCell_Click(object sender, EventArgs e)
+        {
+            var dgv = (DataGridView)dgvContextMenu.SourceControl;
+            var cell = dgv.CurrentCell;
+            if (cell != null)
+            {
+                Clipboard.SetText(cell.FormattedValue?.ToString() ?? "");
+            }
+        }
+
+        private void CopyRow_Click(object sender, EventArgs e)
+        {
+            var dgv = (DataGridView)dgvContextMenu.SourceControl;
+            DataGridViewRow row = null;
+
+            if (dgv.SelectedRows.Count > 0)
+                row = dgv.SelectedRows[0];
+            else if (dgv.CurrentCell != null)
+                row = dgv.Rows[dgv.CurrentCell.RowIndex];
+
+            if (row != null)
+            {
+                // create tab-separated string of cell values
+                var values = row.Cells.Cast<DataGridViewCell>().Select(c => c.FormattedValue?.ToString() ?? "");
+                Clipboard.SetText(string.Join("\t", values));
+            }
+        }
+
+        private void CopyTable_Click(object sender, EventArgs e)
+        {
+            var dgv = (DataGridView)dgvContextMenu.SourceControl;
+            var sb = new StringBuilder();
+
+            // optional: include header row
+            var headers = dgv.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText);
+            sb.AppendLine(string.Join("\t", headers));
+
+            foreach (DataGridViewRow row in dgv.Rows)
+            {
+                if (row.IsNewRow) continue;
+                var values = row.Cells.Cast<DataGridViewCell>().Select(c => c.FormattedValue?.ToString() ?? "");
+                sb.AppendLine(string.Join("\t", values));
+            }
+
+            Clipboard.SetText(sb.ToString());
         }
     }
 }

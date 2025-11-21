@@ -22,6 +22,9 @@ class APCmdObject
 	dim Dec2000 as double
 	dim ParallacticAngle as double
 	dim AssociatedCount as integer
+	dim Magnitude2 as double
+	dim Separation as double
+	dim Components as string
 	
 	private sub CreateFromAPObject(Ob as APPlanObject)
 		ID=Ob.ID
@@ -38,6 +41,9 @@ class APCmdObject
 		Dec2000 = Ob.Dec
 		ParallacticAngle = Ob.ParallacticAngle
 		AssociatedCount = Ob.AssociatedObjects().UBound+1
+		Magnitude2 = Ob.Magnitude2
+		Separation = Ob.Separation
+		Components = Ob.Components
 	end sub
 	
 	// Used by Get and Put commands
@@ -67,6 +73,10 @@ class APCmdObject
 		Dec2000 = CatOb.Dec
 		ParallacticAngle = 0.0
 		AssociatedCount = 0
+		Magnitude2 = CatOb.Magnitude2
+		Separation = CatOb.Separation
+		Components = CatOb.Components
+		Debug "Double Stars: Components=",CatOb.Components, " PA=", Str(CatOb.PosAngle), "Separation=", Str(CatOb.Separation), " Mag2=", Str(CatOb.Magnitude2)
 	end sub
 	
 	// Serialisation of object JSON
@@ -77,7 +87,11 @@ class APCmdObject
 		sJSON = sJSON + """Distance"":""" + Distance + ""","
 		sJSON = sJSON + """GalaxyType"":""" + GalaxyType + ""","
 		sJSON = sJSON + """PosAngle"":" + DoubleToStr(PosAngle) + ","  + """Magnitude"":" + DoubleToStr(Magnitude) + ","
-		sJSON = sJSON + """RA2000"":" + DoubleToStr(RA2000) + ","  + """Dec2000"":" + DoubleToStr(Dec2000) + ","  + """ParallacticAngle"":" + DoubleToStr(ParallacticAngle) + "," + """Associated"":" + Str(AssociatedCount) + "}"
+		sJSON = sJSON + """RA2000"":" + DoubleToStr(RA2000) + ","  + """Dec2000"":" + DoubleToStr(Dec2000) + ","
+		sJSON = sJSON + """ParallacticAngle"":" + DoubleToStr(ParallacticAngle) + "," + """Associated"":" + Str(AssociatedCount) + ","
+		sJSON = sJSON + """Magnitude2"":" + DoubleToStr(Magnitude2) + "," + """Separation"":" + DoubleToStr(Separation) + ","
+		sJSON = sJSON + """Components"":""" + Components + """"
+		sJSON = sJSON + "}"
 		return sJSON
 	end function
 	

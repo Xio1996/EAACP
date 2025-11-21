@@ -390,7 +390,7 @@ namespace EAACP
                         sDistance = (distance / Properties.Settings.Default.Hubble).ToString();
                     }
 
-                    listOfSearchResults.Add(new string[] { obj.ID, obj.Name, obj.Type, sMag, obj.GalaxyType, sDistance, obj.Catalogue, RA, Dec, obj.RA2000.ToString(), obj.Dec2000.ToString(), obj.Size, obj.PosAngle.ToString(), obj.Constellation });
+                    listOfSearchResults.Add(new string[] { obj.ID, obj.Name, obj.Type, sMag, obj.GalaxyType, sDistance, obj.Catalogue, RA, Dec, obj.RA2000.ToString(), obj.Dec2000.ToString(), obj.Size, obj.PosAngle.ToString(), obj.Constellation, obj.Components, obj.Separation.ToString(), obj.Magnitude2.ToString(), obj.Associated.ToString() });
                 }
 
                 string objectLabel = "";
@@ -505,7 +505,7 @@ namespace EAACP
             {
                 if (bFilterOnDistance)
                 {
-                    if (double.TryParse(row["Distance Mpc"].ToString(), out double RV))
+                    if (double.TryParse(row["Dist Mpc"].ToString(), out double RV))
                     {
                         // Radial velocity to distance Mpc (good out to approx 50 Mpc)
                         double dblDistance = RV / Properties.Settings.Default.Hubble;
@@ -526,7 +526,11 @@ namespace EAACP
                 string objectLabel = "";
                 if (Properties.Settings.Default.soID)
                 {
-                    objectLabel = row["ID"].ToString() + " ";
+                    objectLabel = row["ID"].ToString();
+                    if (!string.IsNullOrEmpty(row["Comp"].ToString()) && row["Comp"].ToString().Contains("("))
+                    {
+                        objectLabel += " (" + row["Comp"].ToString().Substring(0, row["Comp"].ToString().IndexOf('(')).Trim() + ") ";
+                    }
                 }
                 if (Properties.Settings.Default.soNames)
                 {
@@ -534,7 +538,7 @@ namespace EAACP
                 }
                 if (Properties.Settings.Default.soMag)
                 {
-                    objectLabel += row["Magnitude"].ToString() + " ";
+                    objectLabel += row["Mag"].ToString() + " ";
                 }
                 if (Properties.Settings.Default.soType)
                 {
@@ -547,7 +551,7 @@ namespace EAACP
 
                 if (Properties.Settings.Default.soDistance)
                 {
-                    if (double.TryParse(row["Distance Mpc"].ToString(), out double dblDistance))
+                    if (double.TryParse(row["Dist Mpc"].ToString(), out double dblDistance))
                     {
                         double distance = dblDistance;
                         double dblDivider = 0;

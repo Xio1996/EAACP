@@ -42,12 +42,12 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.btnInfoTextOption = new System.Windows.Forms.Button();
             this.btnSetInfoText = new System.Windows.Forms.Button();
-            this.btnConfig = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
             this.btnTelescopeTrackingOptions = new System.Windows.Forms.Button();
             this.btnTelescopeTracking = new System.Windows.Forms.Button();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.btnShowTelescope = new System.Windows.Forms.Button();
+            this.btnConfig = new System.Windows.Forms.Button();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.flpMain.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -204,18 +204,6 @@
             this.btnSetInfoText.UseVisualStyleBackColor = true;
             this.btnSetInfoText.Click += new System.EventHandler(this.btnSetInfoText_Click);
             // 
-            // btnConfig
-            // 
-            this.btnConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnConfig.Location = new System.Drawing.Point(3, 387);
-            this.btnConfig.Name = "btnConfig";
-            this.btnConfig.Size = new System.Drawing.Size(146, 42);
-            this.btnConfig.TabIndex = 4;
-            this.btnConfig.Text = "Configuration";
-            this.toolTip1.SetToolTip(this.btnConfig, "Configuration settings");
-            this.btnConfig.UseVisualStyleBackColor = true;
-            this.btnConfig.Click += new System.EventHandler(this.btnConfig_Click);
-            // 
             // panel3
             // 
             this.panel3.Controls.Add(this.btnTelescopeTrackingOptions);
@@ -263,6 +251,18 @@
             this.btnShowTelescope.UseVisualStyleBackColor = true;
             this.btnShowTelescope.Click += new System.EventHandler(this.btnShowTelescope_Click);
             // 
+            // btnConfig
+            // 
+            this.btnConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnConfig.Location = new System.Drawing.Point(3, 387);
+            this.btnConfig.Name = "btnConfig";
+            this.btnConfig.Size = new System.Drawing.Size(146, 42);
+            this.btnConfig.TabIndex = 4;
+            this.btnConfig.Text = "Configuration";
+            this.toolTip1.SetToolTip(this.btnConfig, "Configuration settings");
+            this.btnConfig.UseVisualStyleBackColor = true;
+            this.btnConfig.Click += new System.EventHandler(this.btnConfig_Click);
+            // 
             // frmCP
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -276,7 +276,7 @@
             this.MinimumSize = new System.Drawing.Size(168, 88);
             this.Name = "frmCP";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "EAA CP (0.5b5)";
+            this.Text = "EAA CP (0.6b1)";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmCP_FormClosing);
             this.Load += new System.EventHandler(this.frmCP_Load);
