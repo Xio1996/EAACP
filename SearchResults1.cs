@@ -185,7 +185,11 @@ namespace EAACP
                 dgvSearchResults.Columns["Type"].DefaultCellStyle.BackColor = Color.LightBlue;
                 dgvSearchResults.Columns["Mag"].DefaultCellStyle.BackColor = Color.LightBlue;
 
-                InitDataGridViewContextMenu(dgvSearchResults);
+                dgvSearchResults.AllowUserToResizeRows = false;
+                dgvSearchResults.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+                dgvSearchResults.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+
+                //InitDataGridViewContextMenu(dgvSearchResults);
 
                 totalResults = dt.Rows.Count;
                 UpdateSearchInfo(totalResults);
@@ -493,17 +497,39 @@ namespace EAACP
             Stellarium.SetStelProperty("actionShow_Satellite_Hints", cbStellariumSatellites.Checked.ToString());
         }
 
-        // add fields
-        private ContextMenuStrip dgvContextMenu;
-        private ToolStripMenuItem miCopyCell;
-        private ToolStripMenuItem miCopyTable;
-        private ToolStripMenuItem miCopySelectedRows;
-        private ToolStripMenuItem miSelectStarSystem;
-        private ToolStripMenuItem miShowCDSByName;
-        private ToolStripMenuItem miShowCDSByPosition;
-        private ToolStripMenuItem miCentre;
+        private void OpenUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) return;
+            try
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Unable to open browser: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        private string FormatCDSPosition(string ra, string dec)
+        {
+            if (string.IsNullOrWhiteSpace(ra) || string.IsNullOrWhiteSpace(dec))
+                return "";
+            // Format RA: replace h/m/s with spaces
+            string cdsPos = Regex.Replace(ra, @"\s*[hms]\s*", " ", RegexOptions.IgnoreCase);
+            // Format Dec: replace d/m/s with spaces, ensure leading + for positive Dec
+            dec = dec.Trim() + " ";
+            if (!dec.StartsWith("-"))
+            {
+                cdsPos += " +";
+            }
+            cdsPos += Regex.Replace(dec, @"\s*[dms]\s*", " ", RegexOptions.IgnoreCase);
+            return cdsPos;
+        }
 
-        // helper to check the row meets the "Dbl" + (Washington|WDS) requirement
         private bool IsDoubleWDSRow(DataGridViewRow row)
         {
             if (row == null) return false;
@@ -530,165 +556,69 @@ namespace EAACP
             return false;
         }
 
-        // call this from the form constructor after InitializeComponent()
-        private void InitDataGridViewContextMenu(DataGridView dgv)
+        private void SearchContextMenu_Opening(object sender, CancelEventArgs e)
         {
-            dgvContextMenu = new ContextMenuStrip();
-            miCopyCell = new ToolStripMenuItem("Copy Cell", null, CopyCell_Click);
-            miCopySelectedRows = new ToolStripMenuItem("Copy Selected Rows", null, CopySelectedRows_Click);
-            miCopyTable = new ToolStripMenuItem("Copy Table", null, CopyTable_Click);
+            tsmiCentre.Enabled = dgvSearchResults.SelectedRows.Count == 1;
+            tsmiCopyCell.Enabled = dgvSearchResults.SelectedRows.Count == 1 && dgvSearchResults.CurrentCell != null && !string.IsNullOrWhiteSpace(dgvSearchResults.CurrentCell.Value.ToString());
+            tsmiCopyRow.Enabled = dgvSearchResults.SelectedRows.Count >= 1;
 
-            miSelectStarSystem = new ToolStripMenuItem("Show Star System", null, SelectStarSystem_Click);
+            tsmiCDSByName.Enabled = dgvSearchResults.SelectedRows.Count == 1;
+            tsmiCDSByName.Text = "CDS by Name " + (dgvSearchResults.SelectedRows.Count == 1 ? dgvSearchResults.SelectedRows[0].Cells["ID"].Value.ToString() : "");
 
-            miShowCDSByName = new ToolStripMenuItem("CDS by Name ", null, miShowCDSByName_Click);
+            tsmiCDSByPosition.Enabled = dgvSearchResults.SelectedRows.Count == 1;
+            string cdsPos = FormatCDSPosition(dgvSearchResults.SelectedRows[0].Cells["RA"].Value.ToString(), dgvSearchResults.SelectedRows[0].Cells["Dec"].Value.ToString());
+            tsmiCDSByPosition.Text = "CDS by Position " + (dgvSearchResults.SelectedRows.Count == 1 ? cdsPos + "..." : "");
 
-            miShowCDSByPosition = new ToolStripMenuItem("CDS by Position ", null, miShowCDSByPosition_Click);
-
-            miCentre = new ToolStripMenuItem("Centre", null, btnCentreSelectedContext_Click);
-
-            // include the new "Copy Selected Rows" menu item and keep logical separators
-            dgvContextMenu.Items.AddRange(new ToolStripItem[] {
-                miCentre,
-                miShowCDSByName,
-                miShowCDSByPosition,
-                miSelectStarSystem,
-                new ToolStripSeparator(),
-                miCopyCell,
-                miCopySelectedRows,
-                miCopyTable
-            });
-
-            dgv.ContextMenuStrip = dgvContextMenu;
-
-            //dgv.MouseDown += Dgv_MouseDown;               // detect right-click and select cell/row
-            dgv.CellMouseDown += Dgv_CellMouseDown;
-            dgvContextMenu.Opening += DgvContextMenu_Opening;
-        }
-        private void Dgv_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            // only handle right-clicks
-            if (e.Button != MouseButtons.Right) return;
-
-            var dgv = (DataGridView)sender;
-
-            // clicked outside row/column area -> clear selection
-            if (e.RowIndex < 0 || e.ColumnIndex < 0)
-            {
-                dgv.ClearSelection();
-                return;
-            }
-
-            var clickedRow = dgv.Rows[e.RowIndex];
-
-            // if the row is already selected keep the multi-selection;
-            // otherwise clear and select the clicked row only
-            if (clickedRow.Selected)
-            {
-                // make the clicked cell the current cell so context menu actions use it
-                try { dgv.CurrentCell = dgv[e.ColumnIndex, e.RowIndex]; } catch { }
-            }
-            else
-            {
-                dgv.ClearSelection();
-                clickedRow.Selected = true;
-                try { dgv.CurrentCell = dgv[e.ColumnIndex, e.RowIndex]; } catch { }
-            }
-        }
-
-        private string FormatCDSPosition(string ra, string dec)
-        {
-            if (string.IsNullOrWhiteSpace(ra) || string.IsNullOrWhiteSpace(dec))
-                return "";
-            // Format RA: replace h/m/s with spaces
-            string cdsPos = Regex.Replace(ra, @"\s*[hms]\s*", " ", RegexOptions.IgnoreCase);
-            // Format Dec: replace d/m/s with spaces, ensure leading + for positive Dec
-            dec = dec.Trim() + " ";
-            if (!dec.StartsWith("-"))
-            {
-                cdsPos += " +";
-            }
-            cdsPos += Regex.Replace(dec, @"\s*[dms]\s*", " ", RegexOptions.IgnoreCase);
-            return cdsPos;
-        }       
-        private void DgvContextMenu_Opening(object sender, CancelEventArgs e)
-        {
-            var cms = (ContextMenuStrip)sender;
-            var dgv = (DataGridView)cms.SourceControl;
-
-            miCopyCell.Enabled = dgv.CurrentCell != null;
-            miCopyTable.Enabled = dgv.Rows.Count > 0;
-            miCopySelectedRows.Enabled = dgv.SelectedRows.Count > 0;
-
+            // Only one row selected and it is Dbl+WDS.
             // Enable "Select as Star System" only when at least one of the selected rows (or current row if none selected)
             // matches: Type is Dbl and Catalogue contains "Washington" or "WDS"
             IEnumerable<DataGridViewRow> rowsToCheck;
-            if (dgv.SelectedRows.Count > 0)
+            if (dgvSearchResults.SelectedRows.Count > 0)
             {
-                rowsToCheck = dgv.SelectedRows.Cast<DataGridViewRow>();
+                rowsToCheck = dgvSearchResults.SelectedRows.Cast<DataGridViewRow>();
             }
-            else if (dgv.CurrentRow != null)
+            else if (dgvSearchResults.CurrentRow != null)
             {
-                rowsToCheck = new[] { dgv.CurrentRow };
+                rowsToCheck = new[] { dgvSearchResults.CurrentRow };
             }
             else
             {
                 rowsToCheck = Enumerable.Empty<DataGridViewRow>();
             }
-
-            // Only one row selected and it is Dbl+WDS.
-            miSelectStarSystem.Enabled = dgvSearchResults.SelectedRows.Count == 1 && rowsToCheck.Any(r => IsDoubleWDSRow(r));
-
-            miShowCDSByName.Enabled = dgvSearchResults.SelectedRows.Count == 1;
-            miShowCDSByName.Text = "Search CDS by Name " + (dgvSearchResults.SelectedRows.Count == 1 ? dgvSearchResults.SelectedRows[0].Cells["ID"].Value.ToString() + "..." : "");
-            miShowCDSByPosition.Enabled = dgvSearchResults.SelectedRows.Count == 1;
-
-            string cdsPos = FormatCDSPosition(dgvSearchResults.SelectedRows[0].Cells["RA"].Value.ToString(), dgvSearchResults.SelectedRows[0].Cells["Dec"].Value.ToString());
-
-            miShowCDSByPosition.Text = "Search CDS by Position " + (dgvSearchResults.SelectedRows.Count == 1 ? cdsPos + "..." : "");
-
-            miCentre.Enabled= dgv.SelectedRows.Count == 1;
+            tsmiShowStarSystem.Enabled = dgvSearchResults.SelectedRows.Count == 1 && rowsToCheck.Any(r => IsDoubleWDSRow(r));
+            tsmiWDSComponentsFiltered.Enabled = tsmiShowStarSystem.Enabled;
         }
 
-        private void CopyCell_Click(object sender, EventArgs e)
+        private void dgvSearchResults_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
-            var dgv = (DataGridView)dgvContextMenu.SourceControl;
-            var cell = dgv.CurrentCell;
+            if (e.Button != MouseButtons.Right) return;
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return; // header / empty area
+
+            SearchContextMenu.Show(Cursor.Position);
+        }
+
+        private void tsmiCopyCell_Click(object sender, EventArgs e)
+        {
+            var cell = dgvSearchResults.CurrentCell;
             if (cell != null)
             {
-                Clipboard.SetText(cell.FormattedValue?.ToString() ?? "");
+                if (!string.IsNullOrWhiteSpace(cell.Value.ToString()))
+                {
+                    Clipboard.SetText(cell.FormattedValue?.ToString() ?? "");
+                }
             }
         }
 
-        private void CopyTable_Click(object sender, EventArgs e)
+        private void tsmiCopyRow_Click(object sender, EventArgs e)
         {
-            var dgv = (DataGridView)dgvContextMenu.SourceControl;
             var sb = new StringBuilder();
-
-            // optional: include header row
-            var headers = dgv.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText);
-            sb.AppendLine(string.Join("\t", headers));
-
-            foreach (DataGridViewRow row in dgv.Rows)
-            {
-                if (row.IsNewRow) continue;
-                var values = row.Cells.Cast<DataGridViewCell>().Select(c => c.FormattedValue?.ToString() ?? "");
-                sb.AppendLine(string.Join("\t", values));
-            }
-
-            Clipboard.SetText(sb.ToString());
-        }
-        private void CopySelectedRows_Click(object sender, EventArgs e)
-        {
-            var dgv = (DataGridView)dgvContextMenu.SourceControl;
-            var sb = new StringBuilder();
-
             // include header row once
-            var headers = dgv.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText);
+            var headers = dgvSearchResults.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText);
             sb.AppendLine(string.Join("\t", headers));
 
             // SelectedRows collection is not guaranteed to be in display order.
             // Order by row index so output is top-to-bottom.
-            var selectedRows = dgv.SelectedRows.Cast<DataGridViewRow>()
+            var selectedRows = dgvSearchResults.SelectedRows.Cast<DataGridViewRow>()
                                    .Where(r => !r.IsNewRow)
                                    .OrderBy(r => r.Index);
 
@@ -701,12 +631,45 @@ namespace EAACP
             Clipboard.SetText(sb.ToString());
         }
 
-        private void btnCentreSelectedContext_Click(object sender, EventArgs e)
+        private void tsmiCDSByName_Click(object sender, EventArgs e)
+        {
+            var row = dgvSearchResults.CurrentRow ?? (dgvSearchResults.SelectedRows.Count > 0 ? dgvSearchResults.SelectedRows[0] : null);
+            var id = row?.Cells["ID"]?.Value?.ToString();
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                MessageBox.Show("No ID available", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Build URL and open (escape the ID)
+            string url = "https://cdsportal.u-strasbg.fr/?target=" + Uri.EscapeDataString(id);
+            OpenUrl(url);
+        }
+
+        private void tsmiCentre_Click(object sender, EventArgs e)
         {
             CentreSelected();
         }
 
-        private void SelectRowsByIdAndCatalogue(string id, string catalogue)
+        private void tsmiCDSByPosition_Click(object sender, EventArgs e)
+        {
+            var row = dgvSearchResults.CurrentRow ?? (dgvSearchResults.SelectedRows.Count > 0 ? dgvSearchResults.SelectedRows[0] : null);
+            var raObj = row?.Cells["RA"]?.Value.ToString();
+            var decObj = row?.Cells["Dec"]?.Value.ToString();
+            if (raObj == null || decObj == null)
+            {
+                MessageBox.Show("No position available", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            string cdsPos = FormatCDSPosition(raObj, decObj);
+
+
+            // Build URL and open (format RA/Dec to 6 decimal places)
+            string url = "https://cdsportal.u-strasbg.fr/?target=" + Uri.EscapeDataString(cdsPos);
+            OpenUrl(url);
+        }
+        private void SelectRowsByIdAndCatalogue(string id, string catalogue, bool Filtered)
         {
             if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(catalogue))
                 return;
@@ -717,6 +680,7 @@ namespace EAACP
             dgvSearchResults.ClearSelection();
 
             DataGridViewRow firstMatch = null;
+            List<string> Components = new List<string>();
             int RowIndex = -1;
             foreach (DataGridViewRow row in dgvSearchResults.Rows)
             {
@@ -724,14 +688,19 @@ namespace EAACP
 
                 var cellId = row.Cells["ID"]?.Value?.ToString();
                 var cellCat = row.Cells["Catalogue"]?.Value?.ToString();
+                var cellComp = row.Cells["Comp"]?.Value?.ToString();
 
-                if (string.IsNullOrWhiteSpace(cellId) || string.IsNullOrWhiteSpace(cellCat))
+                if (string.IsNullOrWhiteSpace(cellId) || string.IsNullOrWhiteSpace(cellCat) || string.IsNullOrWhiteSpace(cellComp))
                     continue;
 
                 if (string.Equals(cellId.Trim(), id, StringComparison.OrdinalIgnoreCase) &&
                     string.Equals(cellCat.Trim(), catalogue, StringComparison.OrdinalIgnoreCase))
                 {
+                    if (Filtered && Components.Contains(cellComp[0].ToString()))
+                        continue; // Skip duplicate component in filtered mode
+
                     row.Selected = true;
+                    Components.Add(cellComp[0].ToString());
                     if (firstMatch == null) firstMatch = row;
                     if (RowIndex == -1) RowIndex = row.Index;
                 }
@@ -742,7 +711,7 @@ namespace EAACP
             UpdateSearchInfo(dgvSearchResults.SelectedRows.Count);
         }
 
-        private void SelectStarSystem_Click(object sender, EventArgs e)
+        void WDSComponentsSelection(bool Filtered = false)
         {
             DataGridViewRow sourceRow = null;
             if (dgvSearchResults.SelectedRows.Count > 0)
@@ -766,62 +735,20 @@ namespace EAACP
             // Bind the grid to the sorted view (use DefaultView to keep the sort active)
             dgvSearchResults.DataSource = dt.DefaultView;
 
-            SelectRowsByIdAndCatalogue(sourceID, sourceCatalogue);
-            dgvSearchResults.Focus();
+            SelectRowsByIdAndCatalogue(sourceID, sourceCatalogue, Filtered);
+
             DrawSelectedObjects();
 
             CentreSelected();
         }
-
-        private void OpenUrl(string url)
+        private void tsmiShowStarSystem_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(url)) return;
-            try
-            {
-                var psi = new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = url,
-                    UseShellExecute = true
-                };
-                System.Diagnostics.Process.Start(psi);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Unable to open browser: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-        private void miShowCDSByName_Click(object sender, EventArgs e)
-        {
-            var row = dgvSearchResults.CurrentRow ?? (dgvSearchResults.SelectedRows.Count > 0 ? dgvSearchResults.SelectedRows[0] : null);
-            var id = row?.Cells["ID"]?.Value?.ToString();
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                MessageBox.Show("No ID available", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            // Build URL and open (escape the ID)
-            string url = "https://cdsportal.u-strasbg.fr/?target=" + Uri.EscapeDataString(id);
-            OpenUrl(url);
+            WDSComponentsSelection(false);
         }
 
-        private void miShowCDSByPosition_Click(object sender, EventArgs e)
+        private void tsmiWDSComponentsFiltered_Click(object sender, EventArgs e)
         {
-            var row = dgvSearchResults.CurrentRow ?? (dgvSearchResults.SelectedRows.Count > 0 ? dgvSearchResults.SelectedRows[0] : null);
-            var raObj = row?.Cells["RA"]?.Value.ToString();
-            var decObj = row?.Cells["Dec"]?.Value.ToString();
-            if (raObj == null || decObj == null)
-            {
-                MessageBox.Show("No position available", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            string cdsPos = FormatCDSPosition(raObj, decObj);
-
-
-            // Build URL and open (format RA/Dec to 6 decimal places)
-            string url = "https://cdsportal.u-strasbg.fr/?target=" + Uri.EscapeDataString(cdsPos);
-            OpenUrl(url);
+            WDSComponentsSelection(true);
         }
     }
 }
