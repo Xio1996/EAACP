@@ -51,6 +51,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>EAACP.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ASCOM.Astrometry, Version=6.0.0.0, Culture=neutral, PublicKeyToken=565de7938946fba7, processorArchitecture=MSIL">
       <HintPath>packages\ASCOM.Platform.6.5.2\lib\net40\ASCOM.Astrometry.dll</HintPath>
@@ -266,6 +269,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AstroPlanner Script\EAACP2.txt" />
+    <Content Include="black-hole.ico" />
+    <Content Include="EAACP.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">

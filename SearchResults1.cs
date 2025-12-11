@@ -189,8 +189,6 @@ namespace EAACP
                 dgvSearchResults.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
                 dgvSearchResults.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
 
-                //InitDataGridViewContextMenu(dgvSearchResults);
-
                 totalResults = dt.Rows.Count;
                 UpdateSearchInfo(totalResults);
             }
