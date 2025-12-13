@@ -396,7 +396,23 @@ namespace EAACP
                 string objectLabel = "";
                 if (Properties.Settings.Default.soID)
                 {
-                    objectLabel = obj.ID + " ";
+                    //objectLabel = obj.ID + " ";
+                    if (!string.IsNullOrEmpty(obj.Components) && obj.Components.Contains("("))
+                    {
+                        string component = obj.Components.Substring(0, obj.Components.IndexOf('(')).Trim();
+                        if (component == "A")
+                        {
+                            objectLabel = $"{obj.ID} ({component}) ";
+                        }
+                        else
+                        {
+                            objectLabel += component;
+                        }
+                    }
+                    else
+                    {
+                        objectLabel = obj.ID;
+                    }
                 }
                 if (Properties.Settings.Default.soNames)
                 {
@@ -526,10 +542,21 @@ namespace EAACP
                 string objectLabel = "";
                 if (Properties.Settings.Default.soID)
                 {
-                    objectLabel = row["ID"].ToString();
                     if (!string.IsNullOrEmpty(row["Comp"].ToString()) && row["Comp"].ToString().Contains("("))
                     {
-                        objectLabel += " (" + row["Comp"].ToString().Substring(0, row["Comp"].ToString().IndexOf('(')).Trim() + ") ";
+                        string component = row["Comp"].ToString().Substring(0, row["Comp"].ToString().IndexOf('(')).Trim();
+                        if (component == "A")
+                        {
+                            objectLabel = $"{row["ID"].ToString()} ({component}) ";
+                        }
+                        else
+                        {
+                            objectLabel += component;
+                        }
+                    }
+                    else
+                    {
+                        objectLabel = row["ID"].ToString();
                     }
                 }
                 if (Properties.Settings.Default.soNames)
