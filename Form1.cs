@@ -722,7 +722,7 @@ namespace EAACP
                 sOut = $"{obj.ID} {obj.Components}";
             }
 
-            sOut += "|" + obj.Name;
+            sOut += "|" + obj.Name + "|";
             sOut += APHelper.DisplayTypeFromAPType(obj.Type) + "|";
             sOut += obj.RA2000.ToString() + "|" + obj.Dec2000.ToString() + "|";
             sOut += obj.Magnitude.ToString() + "|";
