@@ -448,6 +448,8 @@ namespace EAACP
 
         private APGetCmdResult APGetObjects(int Cmd, int Option, string ObjType)
         {
+            // APGetObjects Option 1=First selected, 2=All selected, 3=Object of type=ObjType,4=All objects in plan
+
             aAError.Reset();
 
             APGetCmd getCmd = new APGetCmd();
@@ -469,6 +471,11 @@ namespace EAACP
                 {
                     sOut += "}";
                 }
+                if (sOut.Contains("}]") && !sOut.Contains("}]}}"))
+                {
+                    sOut += "}}";
+                }
+
                 APGetCmdResult apObjects = JsonSerializer.Deserialize<APGetCmdResult>(sOut);
                 if (apObjects.error == 0 && apObjects.results != null)
                 {
@@ -739,29 +746,35 @@ namespace EAACP
             return sOut;
         }
 
-        private void btnDSA_Click(object sender, EventArgs e)
+        private void DSAAllSelected()
         {
             if (!IsAPRunning())
             {
                 Speak(AstroPlannerSpeak + " is not running");
                 return;
             }
-
-            //Creates DSA for AP objects - ToDo if minor body then optionally use JPL webservices.
-            APCmdObject SelectedObject = APGetSelectedObject();
-            if (aAError.ErrorNumber ==0 &&  SelectedObject == null)
+            APGetCmdResult apOut = APGetObjects(1, 2, "");
+            if (aAError.ErrorNumber == 0 && apOut == null)
             {
                 Speak("No object selected");
-                //MessageBox.Show("No object selected in AstroPlanner.", "EAACtrl", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             else if (aAError.ErrorNumber != 0)
             {
                 return;
             }
+            StringBuilder sDSA = new StringBuilder();
+            foreach (APCmdObject obj in apOut.results.Objects)
+            {
+                sDSA.Append(DSAFormat(obj));
+            }
+            Clipboard.SetText(sDSA.ToString());
+            Speak("DSA for " + apOut.results.Objects.Count.ToString() + " objects copied to clipboard");
+        }
 
-            Clipboard.SetText(DSAFormat(SelectedObject));
-            Speak("DSA copied to clipboard");
+        private void btnDSA_Click(object sender, EventArgs e)
+        {
+            DSAAllSelected();
         }
 
         private void btnConfig_Click(object sender, EventArgs e)
