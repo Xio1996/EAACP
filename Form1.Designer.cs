@@ -104,7 +104,7 @@
             this.btnDSA.Size = new System.Drawing.Size(146, 42);
             this.btnDSA.TabIndex = 2;
             this.btnDSA.Text = "SharpCap DSA";
-            this.toolTip1.SetToolTip(this.btnDSA, "Creates SharpCap DSA on clipboard from AP selected object");
+            this.toolTip1.SetToolTip(this.btnDSA, "Creates SharpCap DSA on clipboard from AP selected objects");
             this.btnDSA.UseVisualStyleBackColor = true;
             this.btnDSA.Click += new System.EventHandler(this.btnDSA_Click);
             // 
@@ -200,7 +200,7 @@
             this.btnSetInfoText.Size = new System.Drawing.Size(105, 42);
             this.btnSetInfoText.TabIndex = 6;
             this.btnSetInfoText.Text = "Object Text";
-            this.toolTip1.SetToolTip(this.btnSetInfoText, "Set object text");
+            this.toolTip1.SetToolTip(this.btnSetInfoText, "Set object text in OBS");
             this.btnSetInfoText.UseVisualStyleBackColor = true;
             this.btnSetInfoText.Click += new System.EventHandler(this.btnSetInfoText_Click);
             // 
@@ -222,7 +222,7 @@
             this.btnTelescopeTrackingOptions.Size = new System.Drawing.Size(40, 42);
             this.btnTelescopeTrackingOptions.TabIndex = 7;
             this.btnTelescopeTrackingOptions.Text = "Opt";
-            this.toolTip1.SetToolTip(this.btnTelescopeTrackingOptions, "Object text options");
+            this.toolTip1.SetToolTip(this.btnTelescopeTrackingOptions, "Select telescope & configuration");
             this.btnTelescopeTrackingOptions.UseVisualStyleBackColor = true;
             this.btnTelescopeTrackingOptions.Click += new System.EventHandler(this.btnTelescopeTrackingOptions_Click);
             // 
