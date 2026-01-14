@@ -518,7 +518,7 @@ sub main()
 	dim result as new JSON()
 	
 	// Comment the line below, to turn on debugging messages.
-	//DebugOff()
+	DebugOff()
 	
 	// Get the incoming parameters
 	dim oCmd as JSON = WebServer.LaunchParameters
