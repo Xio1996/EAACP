@@ -341,6 +341,8 @@ namespace EAACP
                 obj.Size = row.Cells["Size"].Value.ToString();
                 obj.Constellation = row.Cells["Const"].Value.ToString();
 
+                obj.Components = row.Cells["Comp"].Value.ToString();
+
                 if (double.TryParse(row.Cells["Mag"].Value.ToString(), out double Mag))
                 {
                     obj.Magnitude = Mag;
@@ -365,7 +367,7 @@ namespace EAACP
             }
 
             APPutCmd aPPutCmd = new APPutCmd();
-            aPPutCmd.script = "EAAControl2";
+            aPPutCmd.script = "EAACP2";
             aPPutCmd.parameters = new APPutCmdParams();
             aPPutCmd.parameters.Cmd = 2;
             aPPutCmd.parameters.Option = 1;
