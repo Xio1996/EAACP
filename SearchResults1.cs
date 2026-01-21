@@ -60,6 +60,10 @@ namespace EAACP
             stellariumDSOFilter = Stellarium.GetStelProperty("NebulaMgr.catalogFilters");
             cbStellariumShowDSOImage.Checked = bool.Parse(Stellarium.GetStelProperty("actionShow_DSO_Textures", true));
             cbStellariumMinorBodyMarkers.Checked = bool.Parse(Stellarium.GetStelProperty("actionShow_Planets_ShowMinorBodyMarkers", true));
+            if (bool.TryParse(Stellarium.GetStelProperty("StelCore.flagUseAberration", true), out bool Aberration))
+            {
+                chkAberration.Checked = Aberration;
+            }
 
             if (ResultsList != null || ResultsTable != null)
             {
@@ -749,6 +753,11 @@ namespace EAACP
         private void tsmiWDSComponentsFiltered_Click(object sender, EventArgs e)
         {
             WDSComponentsSelection(true);
+        }
+
+        private void chkAberration_CheckedChanged(object sender, EventArgs e)
+        {
+            Stellarium.SetStelProperty("StelCore.flagUseAberration", chkAberration.Checked ? "true" : "false");
         }
     }
 }
