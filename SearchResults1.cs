@@ -759,5 +759,10 @@ namespace EAACP
         {
             Stellarium.SetStelProperty("StelCore.flagUseAberration", chkAberration.Checked ? "true" : "false");
         }
+
+        private void cbStellariumSatellites_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

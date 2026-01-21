@@ -192,6 +192,7 @@
             resources.ApplyResources(this.cbStellariumSatellites, "cbStellariumSatellites");
             this.cbStellariumSatellites.Name = "cbStellariumSatellites";
             this.cbStellariumSatellites.UseVisualStyleBackColor = true;
+            this.cbStellariumSatellites.CheckedChanged += new System.EventHandler(this.cbStellariumSatellites_CheckedChanged);
             this.cbStellariumSatellites.CheckStateChanged += new System.EventHandler(this.cbStellariumSatellites_CheckStateChanged);
             // 
             // SearchContextMenu

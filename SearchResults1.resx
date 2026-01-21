@@ -594,6 +594,15 @@
   <metadata name="SearchContextMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="SearchContextMenu.Size" type="System.Drawing.Size, System.Drawing">
+    <value>214, 176</value>
+  </data>
+  <data name="&gt;&gt;SearchContextMenu.Name" xml:space="preserve">
+    <value>SearchContextMenu</value>
+  </data>
+  <data name="&gt;&gt;SearchContextMenu.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ContextMenuStrip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="tsmiCentre.Size" type="System.Drawing.Size, System.Drawing">
     <value>213, 22</value>
   </data>
@@ -644,15 +653,6 @@
   </data>
   <data name="tsmiCopyCell.Text" xml:space="preserve">
     <value>Copy Cell</value>
-  </data>
-  <data name="SearchContextMenu.Size" type="System.Drawing.Size, System.Drawing">
-    <value>214, 176</value>
-  </data>
-  <data name="&gt;&gt;SearchContextMenu.Name" xml:space="preserve">
-    <value>SearchContextMenu</value>
-  </data>
-  <data name="&gt;&gt;SearchContextMenu.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ContextMenuStrip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="chkAberration.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
