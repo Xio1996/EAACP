@@ -595,9 +595,23 @@ namespace EAACP
 
         private void dgvSearchResults_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if (e.Button != MouseButtons.Right) return;
-            if (e.RowIndex < 0 || e.ColumnIndex < 0) return; // header / empty area
+            // ignore header clicks
+            if (e.RowIndex < 0) return;
 
+            // only intervene for right-click so Ctrl/Shift selection by left-click remains intact
+            if (e.Button != MouseButtons.Right) return;
+
+            var grid = dgvSearchResults;
+
+            // If the clicked row is not already selected, make it the sole selection.
+            // If it is already selected, keep the current multi-selection (Ctrl/Shift) as-is.
+            if (!grid.Rows[e.RowIndex].Selected)
+            {
+                grid.ClearSelection();
+                grid.Rows[e.RowIndex].Selected = true;
+            }
+
+            // Display the context menu at the mouse position
             SearchContextMenu.Show(Cursor.Position);
         }
 
@@ -637,7 +651,13 @@ namespace EAACP
 
         private void tsmiCDSByName_Click(object sender, EventArgs e)
         {
-            var row = dgvSearchResults.CurrentRow ?? (dgvSearchResults.SelectedRows.Count > 0 ? dgvSearchResults.SelectedRows[0] : null);
+            DataGridViewRow row = null;
+            if (dgvSearchResults.SelectedRows.Count > 0)
+                row = dgvSearchResults.SelectedRows[0];
+            else if (dgvSearchResults.CurrentRow != null)
+                row = dgvSearchResults.CurrentRow;
+
+            if (row == null) return;
             var id = row?.Cells["ID"]?.Value?.ToString();
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -657,7 +677,13 @@ namespace EAACP
 
         private void tsmiCDSByPosition_Click(object sender, EventArgs e)
         {
-            var row = dgvSearchResults.CurrentRow ?? (dgvSearchResults.SelectedRows.Count > 0 ? dgvSearchResults.SelectedRows[0] : null);
+            DataGridViewRow row = null;
+            if (dgvSearchResults.SelectedRows.Count > 0)
+                row = dgvSearchResults.SelectedRows[0];
+            else if (dgvSearchResults.CurrentRow != null)
+                row = dgvSearchResults.CurrentRow;
+
+            if (row == null) return;
             var raObj = row?.Cells["RA"]?.Value.ToString();
             var decObj = row?.Cells["Dec"]?.Value.ToString();
             if (raObj == null || decObj == null)
